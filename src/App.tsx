@@ -2,25 +2,23 @@
 
 import React, { useState } from "react";
 import TextPressure from "./component/text/textstart/TextPressure";
-import StartButton from "./component/button/StartButton/StartButton";
-import HomePage from "./pages/Home";
-import Layout from "./layout/Layout";
+import StartButton from "./component/button/StartButton/Button";
+import MainContent from "./pages/Home";
 
 export default function App() {
   const [started, setStarted] = useState(false);
 
-  return (
-    <Layout>
-      {!started && (
-        <div className="h-screen flex flex-col items-center justify-center bg-black">
-          <TextPressure />
-          <div className="mt-10">
-            <StartButton onClick={() => setStarted(true)} />
-          </div>
-        </div>
-      )}
+  if (!started) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center px-10 bg-black">
+        <TextPressure />
 
-      {started && <HomePage />}
-    </Layout>
-  );
+        <div className="mb-20">
+          <StartButton onClick={() => setStarted(true)} />
+        </div>
+      </div>
+    );
+  }
+
+  return <MainContent />;
 }

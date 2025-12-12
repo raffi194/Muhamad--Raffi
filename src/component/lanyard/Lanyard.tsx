@@ -31,9 +31,9 @@ interface LanyardProps {
 }
 
 export default function Lanyard({
-  position = [0, 0, 30],
+  position = [0, 0, 20],
   gravity = [0, -40, 0],
-  fov = 20,
+  fov = 28,
   transparent = true
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
