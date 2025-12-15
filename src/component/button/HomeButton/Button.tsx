@@ -1,11 +1,17 @@
 import React from "react";
 import styled from "styled-components";
 
-const Button = () => {
+// Interface agar tombol bisa menerima fungsi onClick dari Home.tsx
+interface ButtonProps {
+  onClick?: () => void;
+}
+
+const Button: React.FC<ButtonProps> = ({ onClick }) => {
   return (
     <StyledWrapper>
       <div className="btn-wrapper">
-        <button className="btn">
+        {/* Menambahkan event handler onClick di sini */}
+        <button className="btn" onClick={onClick}>
           <svg
             className="btn-svg"
             xmlns="http://www.w3.org/2000/svg"
@@ -223,58 +229,19 @@ const StyledWrapper = styled.div`
   }
 
   /* Animation delays for .btn-letter elements */
-  .btn-letter:nth-child(1),
-  .btn:focus .btn-letter:nth-child(1) {
-    animation-delay: 0s;
-  }
-  .btn-letter:nth-child(2),
-  .btn:focus .btn-letter:nth-child(2) {
-    animation-delay: 0.08s;
-  }
-  .btn-letter:nth-child(3),
-  .btn:focus .btn-letter:nth-child(3) {
-    animation-delay: 0.16s;
-  }
-  .btn-letter:nth-child(4),
-  .btn:focus .btn-letter:nth-child(4) {
-    animation-delay: 0.24s;
-  }
-  .btn-letter:nth-child(5),
-  .btn:focus .btn-letter:nth-child(5) {
-    animation-delay: 0.32s;
-  }
-  .btn-letter:nth-child(6),
-  .btn:focus .btn-letter:nth-child(6) {
-    animation-delay: 0.4s;
-  }
-  .btn-letter:nth-child(7),
-  .btn:focus .btn-letter:nth-child(7) {
-    animation-delay: 0.48s;
-  }
-  .btn-letter:nth-child(8),
-  .btn:focus .btn-letter:nth-child(8) {
-    animation-delay: 0.56s;
-  }
-  .btn-letter:nth-child(9),
-  .btn:focus .btn-letter:nth-child(9) {
-    animation-delay: 0.64s;
-  }
-  .btn-letter:nth-child(10),
-  .btn:focus .btn-letter:nth-child(10) {
-    animation-delay: 0.72s;
-  }
-  .btn-letter:nth-child(11),
-  .btn:focus .btn-letter:nth-child(11) {
-    animation-delay: 0.8s;
-  }
-  .btn-letter:nth-child(12),
-  .btn:focus .btn-letter:nth-child(12) {
-    animation-delay: 0.88s;
-  }
-  .btn-letter:nth-child(13),
-  .btn:focus .btn-letter:nth-child(13) {
-    animation-delay: 0.96s;
-  }
+  .btn-letter:nth-child(1), .btn:focus .btn-letter:nth-child(1) { animation-delay: 0s; }
+  .btn-letter:nth-child(2), .btn:focus .btn-letter:nth-child(2) { animation-delay: 0.08s; }
+  .btn-letter:nth-child(3), .btn:focus .btn-letter:nth-child(3) { animation-delay: 0.16s; }
+  .btn-letter:nth-child(4), .btn:focus .btn-letter:nth-child(4) { animation-delay: 0.24s; }
+  .btn-letter:nth-child(5), .btn:focus .btn-letter:nth-child(5) { animation-delay: 0.32s; }
+  .btn-letter:nth-child(6), .btn:focus .btn-letter:nth-child(6) { animation-delay: 0.4s; }
+  .btn-letter:nth-child(7), .btn:focus .btn-letter:nth-child(7) { animation-delay: 0.48s; }
+  .btn-letter:nth-child(8), .btn:focus .btn-letter:nth-child(8) { animation-delay: 0.56s; }
+  .btn-letter:nth-child(9), .btn:focus .btn-letter:nth-child(9) { animation-delay: 0.64s; }
+  .btn-letter:nth-child(10), .btn:focus .btn-letter:nth-child(10) { animation-delay: 0.72s; }
+  .btn-letter:nth-child(11), .btn:focus .btn-letter:nth-child(11) { animation-delay: 0.8s; }
+  .btn-letter:nth-child(12), .btn:focus .btn-letter:nth-child(12) { animation-delay: 0.88s; }
+  .btn-letter:nth-child(13), .btn:focus .btn-letter:nth-child(13) { animation-delay: 0.96s; }
 
   /* Active state */
   .btn:active {

@@ -1,2 +1,15 @@
 @import "tailwindcss";
 @tailwind utilities;
+
+@theme {
+  /* Menambahkan custom scale dari 10 sampai 50 */
+  --scale-10: 0.10;
+  --scale-15: 0.15;
+  --scale-20: 0.20;
+  --scale-25: 0.25;
+  --scale-30: 0.30;
+  --scale-35: 0.35;
+  --scale-40: 0.40;
+  --scale-45: 0.45;
+  --scale-50: 0.50;
+}

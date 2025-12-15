@@ -6,6 +6,11 @@ import Lanyard from "../component/lanyard/Lanyard";
 import CVButton from "../component/button/HomeButton/Button";
 import StaggeredMenu from "../component/navbar/StaggeredMenu";
 
+// Definisi Props untuk Home
+interface HomeProps {
+  onOpenDetail: () => void;
+}
+
 const menuItems = [
   { label: "Home", ariaLabel: "Go to home page", link: "/" },
   { label: "About", ariaLabel: "Learn about us", link: "/about" },
@@ -19,7 +24,8 @@ const socialItems = [
   { label: "LinkedIn", link: "https://linkedin.com" },
 ];
 
-const Home = () => {
+// Terima props onOpenDetail
+const Home: React.FC<HomeProps> = ({ onOpenDetail }) => {
   return (
     <div className="relative h-screen bg-neutral-900 overflow-hidden flex">
 
@@ -39,7 +45,6 @@ const Home = () => {
       />
 
       <div className="absolute inset-0 z-20 pointer-events-none">
-
         <div className="w-full h-full pointer-events-auto">
              <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} />
         </div>
@@ -54,14 +59,14 @@ const Home = () => {
             </h1>
             <p className="text-xl font-light text-neutral-400">As a Student</p>
           </div>
-          
         </div>
 
         <div className="relative z-30 flex gap-12 mt-4 pointer-events-auto">
           <StatCard value="3.5+" label="Aggregate GPA" />
           <StatCard value="1+" label="Project" />
           <StatCard value="01+" label="Years Experience" />
-          <CVButton />
+          {/* Panggil fungsi onOpenDetail saat diklik */}
+          <CVButton onClick={onOpenDetail} />
         </div>
 
         <div className="relative z-20 w-fit mt-4 pointer-events-auto">
@@ -89,7 +94,6 @@ const Home = () => {
 
 export default Home;
 
-
 function StatCard({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col">
@@ -99,4 +103,4 @@ function StatCard({ value, label }: { value: string; label: string }) {
       </span>
     </div>
   );
-} 
+}
