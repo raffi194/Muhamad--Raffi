@@ -210,7 +210,7 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
         />
       </g>
     </g>
-    {/* Detail Profile */}
+    {/* Detail Pages */}
     <defs>
       <clipPath id="profileScreenClip">
         <rect
@@ -223,26 +223,15 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
       </clipPath>
     </defs>
 
-    <image
-      href={ProfileBgImg}
-      x={172.625}
-      y={21.3094}
-      width={727.749}
-      height={421.178}
-      clipPath="url(#profileScreenClip)"
-      preserveAspectRatio="xMidYMid slice"
-    />
-
-
     <foreignObject
       x={172.625}
       y={21.3094}
       width={727.749}
       height={421.178}
-      className="overflow-hidden rounded-[12px]" 
-      style={{ clipPath: "url(#profileScreenClip)" }} 
+      className="overflow-hidden rounded-[12px]"
+      style={{ clipPath: "url(#profileScreenClip)" }}
     >
-      <div className="w-full h-full overflow-y-auto">
+      <div className="w-full h-full">
         <DetailProfile />
       </div>
     </foreignObject>
@@ -460,8 +449,8 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
     >
       <circle cx={1028.59} cy={119.442} r={17.1909} fill="#D9D9D9" />
     </mask>
+    {/* Button A */}
     <g
-      // button A
       // 1. Event Handler diletakkan di group pembungkus utama
       onClick={() => console.log("Tombol ditekan!")}
       // 2. Class animasi:
@@ -565,43 +554,75 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
     >
       <circle cx={993.493} cy={153.108} r={17.1909} fill="#D9D9D9" />
     </mask>
-    <g mask="url(#mask9_269_13614)">
-      <g filter="url(#filter32_f_269_13614)">
-        <circle
-          cx={993.493}
-          cy={153.108}
-          r={17.1909}
-          fill="url(#paint38_linear_269_13614)"
-        />
+    {/* BUtton B */}
+    <g
+      // === BUTTON B INTERACTIVE WRAPPER ===
+      onClick={() => console.log("Button B Ditekan!")} // Ganti dengan fungsi yang diinginkan
+      className="cursor-pointer transition-all duration-150 ease-in-out active:scale-90 hover:brightness-110"
+      style={{
+        // PENTING: Koordinat ini diambil dari cx dan cy lingkaran Button B (993.493, 153.108)
+        transformOrigin: "993.493px 153.108px",
+        transformBox: "view-box",
+      }}
+    >
+      {/* --- BAGIAN BACKGROUND (LINGKARAN BUTTON B) --- */}
+      <g mask="url(#mask9_269_13614)">
+        <g filter="url(#filter32_f_269_13614)">
+          <circle
+            cx={993.493}
+            cy={153.108}
+            r={17.1909}
+            fill="url(#paint38_linear_269_13614)"
+          />
+        </g>
+        <g filter="url(#filter33_f_269_13614)">
+          <circle
+            cx={993.493}
+            cy={153.108}
+            r={16.4746}
+            stroke="url(#paint39_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
+        <g filter="url(#filter34_f_269_13614)">
+          <circle
+            cx={993.494}
+            cy={153.108}
+            r={13.6095}
+            stroke="url(#paint40_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
+        <g filter="url(#filter35_f_269_13614)">
+          <circle
+            cx={993.493}
+            cy={153.108}
+            r={16.4746}
+            stroke="url(#paint41_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
       </g>
-      <g filter="url(#filter33_f_269_13614)">
-        <circle
-          cx={993.493}
-          cy={153.108}
-          r={16.4746}
-          stroke="url(#paint39_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
-      </g>
-      <g filter="url(#filter34_f_269_13614)">
-        <circle
-          cx={993.494}
-          cy={153.108}
-          r={13.6095}
-          stroke="url(#paint40_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
-      </g>
-      <g filter="url(#filter35_f_269_13614)">
-        <circle
-          cx={993.493}
-          cy={153.108}
-          r={16.4746}
-          stroke="url(#paint41_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
+
+      {/* --- BAGIAN FOREGROUND (HURUF B) --- */}
+      {/* Group ini dibungkus masker Huruf B */}
+      <g mask="url(#mask10_269_13614)">
+        <g filter="url(#filter36_f_269_13614)">
+          <path
+            d="M993.843 154.204H990.21L990.19 152.412H993.363C993.899 152.412 994.352 152.333 994.725 152.177C995.103 152.013 995.391 151.782 995.586 151.481C995.782 151.174 995.88 150.806 995.88 150.375C995.88 149.898 995.789 149.51 995.606 149.209C995.423 148.909 995.142 148.69 994.764 148.553C994.392 148.416 993.915 148.348 993.334 148.348H990.954V160.648H988.496V146.389H993.334C994.117 146.389 994.816 146.464 995.43 146.614C996.05 146.764 996.575 146.999 997.006 147.319C997.444 147.633 997.773 148.031 997.995 148.514C998.224 148.997 998.338 149.572 998.338 150.238C998.338 150.825 998.198 151.364 997.917 151.853C997.636 152.337 997.222 152.732 996.673 153.038C996.125 153.345 995.443 153.528 994.627 153.587L993.843 154.204ZM993.735 160.648H989.436L990.543 158.699H993.735C994.29 158.699 994.754 158.607 995.126 158.425C995.498 158.235 995.776 157.977 995.959 157.651C996.148 157.318 996.243 156.93 996.243 156.486C996.243 156.022 996.161 155.621 995.998 155.281C995.834 154.935 995.577 154.671 995.224 154.488C994.871 154.298 994.411 154.204 993.843 154.204H991.082L991.101 152.412H994.695L995.253 153.087C996.037 153.114 996.68 153.287 997.183 153.606C997.692 153.926 998.071 154.341 998.319 154.85C998.567 155.359 998.691 155.908 998.691 156.495C998.691 157.403 998.492 158.163 998.093 158.777C997.702 159.391 997.137 159.858 996.399 160.178C995.661 160.491 994.774 160.648 993.735 160.648Z"
+            fill="url(#paint42_linear_269_13614)"
+          />
+        </g>
+        <g filter="url(#filter37_if_269_13614)">
+          <path
+            d="M993.843 154.204H990.21L990.19 152.412H993.363C993.899 152.412 994.352 152.333 994.725 152.177C995.103 152.013 995.391 151.782 995.586 151.481C995.782 151.174 995.88 150.806 995.88 150.375C995.88 149.898 995.789 149.51 995.606 149.209C995.423 148.909 995.142 148.69 994.764 148.553C994.392 148.416 993.915 148.348 993.334 148.348H990.954V160.648H988.496V146.389H993.334C994.117 146.389 994.816 146.464 995.43 146.614C996.05 146.764 996.575 146.999 997.006 147.319C997.444 147.633 997.773 148.031 997.995 148.514C998.224 148.997 998.338 149.572 998.338 150.238C998.338 150.825 998.198 151.364 997.917 151.853C997.636 152.337 997.222 152.732 996.673 153.038C996.125 153.345 995.443 153.528 994.627 153.587L993.843 154.204ZM993.735 160.648H989.436L990.543 158.699H993.735C994.29 158.699 994.754 158.607 995.126 158.425C995.498 158.235 995.776 157.977 995.959 157.651C996.148 157.318 996.243 156.93 996.243 156.486C996.243 156.022 996.161 155.621 995.998 155.281C995.834 154.935 995.577 154.671 995.224 154.488C994.871 154.298 994.411 154.204 993.843 154.204H991.082L991.101 152.412H994.695L995.253 153.087C996.037 153.114 996.68 153.287 997.183 153.606C997.692 153.926 998.071 154.341 998.319 154.85C998.567 155.359 998.691 155.908 998.691 156.495C998.691 157.403 998.492 158.163 998.093 158.777C997.702 159.391 997.137 159.858 996.399 160.178C995.661 160.491 994.774 160.648 993.735 160.648Z"
+            fill="url(#paint43_linear_269_13614)"
+          />
+        </g>
       </g>
     </g>
+
+    {/* Definisi Mask Huruf B (Diletakkan di luar wrapper group animasi) */}
     <mask
       id="mask10_269_13614"
       style={{ maskType: "alpha" }}
@@ -616,68 +637,75 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
         fill="white"
       />
     </mask>
-    <g mask="url(#mask10_269_13614)">
-      <g filter="url(#filter36_f_269_13614)">
-        <path
-          d="M993.843 154.204H990.21L990.19 152.412H993.363C993.899 152.412 994.352 152.333 994.725 152.177C995.103 152.013 995.391 151.782 995.586 151.481C995.782 151.174 995.88 150.806 995.88 150.375C995.88 149.898 995.789 149.51 995.606 149.209C995.423 148.909 995.142 148.69 994.764 148.553C994.392 148.416 993.915 148.348 993.334 148.348H990.954V160.648H988.496V146.389H993.334C994.117 146.389 994.816 146.464 995.43 146.614C996.05 146.764 996.575 146.999 997.006 147.319C997.444 147.633 997.773 148.031 997.995 148.514C998.224 148.997 998.338 149.572 998.338 150.238C998.338 150.825 998.198 151.364 997.917 151.853C997.636 152.337 997.222 152.732 996.673 153.038C996.125 153.345 995.443 153.528 994.627 153.587L993.843 154.204ZM993.735 160.648H989.436L990.543 158.699H993.735C994.29 158.699 994.754 158.607 995.126 158.425C995.498 158.235 995.776 157.977 995.959 157.651C996.148 157.318 996.243 156.93 996.243 156.486C996.243 156.022 996.161 155.621 995.998 155.281C995.834 154.935 995.577 154.671 995.224 154.488C994.871 154.298 994.411 154.204 993.843 154.204H991.082L991.101 152.412H994.695L995.253 153.087C996.037 153.114 996.68 153.287 997.183 153.606C997.692 153.926 998.071 154.341 998.319 154.85C998.567 155.359 998.691 155.908 998.691 156.495C998.691 157.403 998.492 158.163 998.093 158.777C997.702 159.391 997.137 159.858 996.399 160.178C995.661 160.491 994.774 160.648 993.735 160.648Z"
-          fill="url(#paint42_linear_269_13614)"
-        />
-      </g>
-      <g filter="url(#filter37_if_269_13614)">
-        <path
-          d="M993.843 154.204H990.21L990.19 152.412H993.363C993.899 152.412 994.352 152.333 994.725 152.177C995.103 152.013 995.391 151.782 995.586 151.481C995.782 151.174 995.88 150.806 995.88 150.375C995.88 149.898 995.789 149.51 995.606 149.209C995.423 148.909 995.142 148.69 994.764 148.553C994.392 148.416 993.915 148.348 993.334 148.348H990.954V160.648H988.496V146.389H993.334C994.117 146.389 994.816 146.464 995.43 146.614C996.05 146.764 996.575 146.999 997.006 147.319C997.444 147.633 997.773 148.031 997.995 148.514C998.224 148.997 998.338 149.572 998.338 150.238C998.338 150.825 998.198 151.364 997.917 151.853C997.636 152.337 997.222 152.732 996.673 153.038C996.125 153.345 995.443 153.528 994.627 153.587L993.843 154.204ZM993.735 160.648H989.436L990.543 158.699H993.735C994.29 158.699 994.754 158.607 995.126 158.425C995.498 158.235 995.776 157.977 995.959 157.651C996.148 157.318 996.243 156.93 996.243 156.486C996.243 156.022 996.161 155.621 995.998 155.281C995.834 154.935 995.577 154.671 995.224 154.488C994.871 154.298 994.411 154.204 993.843 154.204H991.082L991.101 152.412H994.695L995.253 153.087C996.037 153.114 996.68 153.287 997.183 153.606C997.692 153.926 998.071 154.341 998.319 154.85C998.567 155.359 998.691 155.908 998.691 156.495C998.691 157.403 998.492 158.163 998.093 158.777C997.702 159.391 997.137 159.858 996.399 160.178C995.661 160.491 994.774 160.648 993.735 160.648Z"
-          fill="url(#paint43_linear_269_13614)"
-        />
-      </g>
-    </g>
-    <mask
-      id="mask11_269_13614"
-      style={{ maskType: "alpha" }}
-      maskUnits="userSpaceOnUse"
-      x={940}
-      y={102}
-      width={35}
-      height={35}
+    {/* Buntton Y */}
+    <g
+      // === BUTTON Y INTERACTIVE WRAPPER ===
+      onClick={() => console.log("Button Y Ditekan!")}
+      className="cursor-pointer transition-all duration-150 ease-in-out active:scale-90 hover:brightness-110"
+      style={{
+        // PENTING: Koordinat diambil dari cx dan cy lingkaran Button Y (957.678, 119.443)
+        transformOrigin: "957.678px 119.443px",
+        transformBox: "view-box",
+      }}
     >
-      <circle cx={957.678} cy={119.443} r={17.1909} fill="#D9D9D9" />
-    </mask>
-    <g mask="url(#mask11_269_13614)">
-      <g filter="url(#filter38_f_269_13614)">
-        <circle
-          cx={957.678}
-          cy={119.443}
-          r={17.1909}
-          fill="url(#paint44_linear_269_13614)"
-        />
+      {/* --- BAGIAN BACKGROUND (LINGKARAN BUTTON Y) --- */}
+      <g mask="url(#mask11_269_13614)">
+        <g filter="url(#filter38_f_269_13614)">
+          <circle
+            cx={957.678}
+            cy={119.443}
+            r={17.1909}
+            fill="url(#paint44_linear_269_13614)"
+          />
+        </g>
+        <g filter="url(#filter39_f_269_13614)">
+          <circle
+            cx={957.678}
+            cy={119.443}
+            r={16.4746}
+            stroke="url(#paint45_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
+        <g filter="url(#filter40_f_269_13614)">
+          <circle
+            cx={957.678}
+            cy={119.442}
+            r={13.6095}
+            stroke="url(#paint46_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
+        <g filter="url(#filter41_f_269_13614)">
+          <circle
+            cx={957.678}
+            cy={119.443}
+            r={16.4746}
+            stroke="url(#paint47_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
       </g>
-      <g filter="url(#filter39_f_269_13614)">
-        <circle
-          cx={957.678}
-          cy={119.443}
-          r={16.4746}
-          stroke="url(#paint45_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
-      </g>
-      <g filter="url(#filter40_f_269_13614)">
-        <circle
-          cx={957.678}
-          cy={119.442}
-          r={13.6095}
-          stroke="url(#paint46_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
-      </g>
-      <g filter="url(#filter41_f_269_13614)">
-        <circle
-          cx={957.678}
-          cy={119.443}
-          r={16.4746}
-          stroke="url(#paint47_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
+
+      {/* --- BAGIAN FOREGROUND (HURUF Y) --- */}
+      {/* Group ini dibungkus masker Huruf Y */}
+      <g mask="url(#mask12_269_13614)">
+        <g filter="url(#filter42_f_269_13614)">
+          <path
+            d="M954.042 112.724L957.352 119.53L960.662 112.724H963.385L958.586 121.733V126.982H956.108V121.733L951.31 112.724H954.042Z"
+            fill="url(#paint48_linear_269_13614)"
+          />
+        </g>
+        <g filter="url(#filter43_if_269_13614)">
+          <path
+            d="M954.042 112.724L957.352 119.53L960.662 112.724H963.385L958.586 121.733V126.982H956.108V121.733L951.31 112.724H954.042Z"
+            fill="url(#paint49_linear_269_13614)"
+          />
+        </g>
       </g>
     </g>
+
+    {/* Definisi Mask Huruf Y (Diletakkan di luar wrapper group animasi) */}
     <mask
       id="mask12_269_13614"
       style={{ maskType: "alpha" }}
@@ -692,68 +720,75 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
         fill="white"
       />
     </mask>
-    <g mask="url(#mask12_269_13614)">
-      <g filter="url(#filter42_f_269_13614)">
-        <path
-          d="M954.042 112.724L957.352 119.53L960.662 112.724H963.385L958.586 121.733V126.982H956.108V121.733L951.31 112.724H954.042Z"
-          fill="url(#paint48_linear_269_13614)"
-        />
-      </g>
-      <g filter="url(#filter43_if_269_13614)">
-        <path
-          d="M954.042 112.724L957.352 119.53L960.662 112.724H963.385L958.586 121.733V126.982H956.108V121.733L951.31 112.724H954.042Z"
-          fill="url(#paint49_linear_269_13614)"
-        />
-      </g>
-    </g>
-    <mask
-      id="mask13_269_13614"
-      style={{ maskType: "alpha" }}
-      maskUnits="userSpaceOnUse"
-      x={976}
-      y={68}
-      width={35}
-      height={35}
+    {/* Buntton X */}
+    <g
+      // === BUTTON X INTERACTIVE WRAPPER ===
+      onClick={() => console.log("Button X Ditekan!")}
+      className="cursor-pointer transition-all duration-150 ease-in-out active:scale-90 hover:brightness-110"
+      style={{
+        // PENTING: Koordinat diambil dari cx dan cy lingkaran Button X (993.493, 85.7769)
+        transformOrigin: "993.493px 85.7769px",
+        transformBox: "view-box",
+      }}
     >
-      <circle cx={993.493} cy={85.7769} r={17.1909} fill="#D9D9D9" />
-    </mask>
-    <g mask="url(#mask13_269_13614)">
-      <g filter="url(#filter44_f_269_13614)">
-        <circle
-          cx={993.493}
-          cy={85.7769}
-          r={17.1909}
-          fill="url(#paint50_linear_269_13614)"
-        />
+      {/* --- BAGIAN BACKGROUND (LINGKARAN BUTTON X) --- */}
+      <g mask="url(#mask13_269_13614)">
+        <g filter="url(#filter44_f_269_13614)">
+          <circle
+            cx={993.493}
+            cy={85.7769}
+            r={17.1909}
+            fill="url(#paint50_linear_269_13614)"
+          />
+        </g>
+        <g filter="url(#filter45_f_269_13614)">
+          <circle
+            cx={993.493}
+            cy={85.7769}
+            r={16.4746}
+            stroke="url(#paint51_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
+        <g filter="url(#filter46_f_269_13614)">
+          <circle
+            cx={993.494}
+            cy={85.7773}
+            r={13.6095}
+            stroke="url(#paint52_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
+        <g filter="url(#filter47_f_269_13614)">
+          <circle
+            cx={993.493}
+            cy={85.7769}
+            r={16.4746}
+            stroke="url(#paint53_linear_269_13614)"
+            strokeWidth={1.43258}
+          />
+        </g>
       </g>
-      <g filter="url(#filter45_f_269_13614)">
-        <circle
-          cx={993.493}
-          cy={85.7769}
-          r={16.4746}
-          stroke="url(#paint51_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
-      </g>
-      <g filter="url(#filter46_f_269_13614)">
-        <circle
-          cx={993.494}
-          cy={85.7773}
-          r={13.6095}
-          stroke="url(#paint52_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
-      </g>
-      <g filter="url(#filter47_f_269_13614)">
-        <circle
-          cx={993.493}
-          cy={85.7769}
-          r={16.4746}
-          stroke="url(#paint53_linear_269_13614)"
-          strokeWidth={1.43258}
-        />
+
+      {/* --- BAGIAN FOREGROUND (HURUF X) --- */}
+      {/* Group ini dibungkus masker Huruf X */}
+      <g mask="url(#mask14_269_13614)">
+        <g filter="url(#filter48_f_269_13614)">
+          <path
+            d="M990.367 79.058L993.393 84.2581L996.419 79.058H999.249L994.94 86.1188L999.357 93.3167H996.497L993.393 88.0186L990.288 93.3167H987.419L991.845 86.1188L987.527 79.058H990.367Z"
+            fill="url(#paint54_linear_269_13614)"
+          />
+        </g>
+        <g filter="url(#filter49_if_269_13614)">
+          <path
+            d="M990.367 79.058L993.393 84.2581L996.419 79.058H999.249L994.94 86.1188L999.357 93.3167H996.497L993.393 88.0186L990.288 93.3167H987.419L991.845 86.1188L987.527 79.058H990.367Z"
+            fill="url(#paint55_linear_269_13614)"
+          />
+        </g>
       </g>
     </g>
+
+    {/* Definisi Mask Huruf X (Diletakkan di luar wrapper group animasi) */}
     <mask
       id="mask14_269_13614"
       style={{ maskType: "alpha" }}
@@ -768,20 +803,6 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
         fill="white"
       />
     </mask>
-    <g mask="url(#mask14_269_13614)">
-      <g filter="url(#filter48_f_269_13614)">
-        <path
-          d="M990.367 79.058L993.393 84.2581L996.419 79.058H999.249L994.94 86.1188L999.357 93.3167H996.497L993.393 88.0186L990.288 93.3167H987.419L991.845 86.1188L987.527 79.058H990.367Z"
-          fill="url(#paint54_linear_269_13614)"
-        />
-      </g>
-      <g filter="url(#filter49_if_269_13614)">
-        <path
-          d="M990.367 79.058L993.393 84.2581L996.419 79.058H999.249L994.94 86.1188L999.357 93.3167H996.497L993.393 88.0186L990.288 93.3167H987.419L991.845 86.1188L987.527 79.058H990.367Z"
-          fill="url(#paint55_linear_269_13614)"
-        />
-      </g>
-    </g>
     <g filter="url(#filter50_f_269_13614)">
       <circle cx={79.5091} cy={210.41} r={17.9072} fill="black" />
       <circle
