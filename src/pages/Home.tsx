@@ -9,6 +9,7 @@ import StaggeredMenu from "../component/navbar/StaggeredMenu";
 // Definisi Props untuk Home
 interface HomeProps {
   onOpenDetail: () => void;
+  onOpenNintendo?: () => void;
 }
 
 const menuItems = [
@@ -25,7 +26,7 @@ const socialItems = [
 ];
 
 // Terima props onOpenDetail
-const Home: React.FC<HomeProps> = ({ onOpenDetail }) => {
+const Home: React.FC<HomeProps> = ({ onOpenDetail, onOpenNintendo }) => {
   return (
     <div className="relative h-screen bg-neutral-900 overflow-hidden flex">
 
