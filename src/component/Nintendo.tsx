@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import DetailProfile from "./Profile/DetailProfile";     
-import DetailEducation from "./Education/DetailEducation"; 
+import DetailProfile from "./Profile/DetailProfile";
+import DetailEducation from "./Education/DetailEducation";
 import Contactme from "./contact/Contactme";
 import Logo from "./splashscreen/Logo";
+import Loading from "./Loading";
 
 const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
   const [activeScreen, setActiveScreen] = useState<
     "default" | "profile" | "education" | "contact"
   >("default");
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const playGameSound = () => {
     // 1. Inisialisasi Audio Context
@@ -42,6 +45,27 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
     // 5. Mainkan suara
     oscillator.start();
     oscillator.stop(ctx.currentTime + 0.1); // Stop setelah 100ms
+  };
+
+  // 3. Buat fungsi transisi halaman
+  const handleNavigation = (targetScreen: string) => {
+    // a. Mainkan suara (jika ada logic sound)
+    playGameSound();
+
+    // b. Jika sudah di halaman tersebut, tidak perlu reload (opsional)
+    if (activeScreen === targetScreen) return;
+
+    // c. Mulai Loading
+    setIsLoading(true);
+
+    // d. Tunggu sebentar (misal 2 detik) lalu ganti halaman
+    setTimeout(() => {
+      const validScreens: ("default" | "profile" | "education" | "contact")[] = ["default", "profile", "education", "contact"];
+      if (validScreens.includes(targetScreen as any)) {
+        setActiveScreen(targetScreen as "default" | "profile" | "education" | "contact");
+      }
+      setIsLoading(false); // Matikan loading
+    }, 2000); // Ubah 2000 (2 detik) sesuai keinginan
   };
 
   return (
@@ -255,77 +279,69 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
       </g>
       {/* ================= AREA LAYAR (SCREEN) ================= */}
       <g id="Nintendo_Screen_Area">
-        {activeScreen === "default" && (
-          <svg
-            x={195.757}
-            y={24.1648}
-            width={825.267}
-            height={477.615}
-            viewBox="0 0 206 206"
-            preserveAspectRatio="none"
-          >
-            {/* Kirim fungsi untuk mengubah layar ke "profile" setelah animasi selesai */}
-            <Logo 
-              width="100%" 
-              height="100%" 
-              onFinish={() => setActiveScreen("profile")} 
-            />
-          </svg>
-        )}
-
-        {activeScreen === "profile" && (
-          // PERBAIKAN DI SINI: Gunakan foreignObject karena DetailProfile isinya HTML (div)
-          <foreignObject
-            x={195.757}
-            y={24.1648}
-            width={825.267}
-            height={477.615}
-          >
-            {/* Tambahkan w-full h-full agar div mengisi area foreignObject */}
-            <div className="w-full h-full">
-              <DetailProfile />
-            </div>
-          </foreignObject>
-        )}
-
-        {activeScreen === "contact" && (
-          <foreignObject
-            x={195.757}
-            y={24.1648}
-            width={825.267}
-            height={477.615}
-          >
-            <div className="w-full h-full">
-              <Contactme />
-            </div>
-          </foreignObject>
-        )}
-
-        {activeScreen === "education" && (
-          // Tampilan Education
-          <svg
-            x={195.757}
-            y={24.1648}
-            width={825.267}
-            height={477.615}
-            viewBox="0 0 2645 1488"
-            preserveAspectRatio="none"
-          >
-            <DetailEducation width="100%" height="100%" />
-          </svg>
-        )}
-
-        {/* Efek Glare Layar */}
-        <rect
+        {/* SATU ForeignObject UNTUK MENANGANI SEMUA SCREEN & LOADING */}
+        <foreignObject
           x={195.757}
           y={24.1648}
           width={825.267}
           height={477.615}
-          rx={14.6209}
-          fill="white"
-          fillOpacity="0.05"
-          pointerEvents="none"
-        />
+          className="overflow-hidden rounded-[14px]" // Optional: styling tambahan agar rapi
+        >
+          <div className="w-full h-full bg-[#1a1a1a] relative">
+            {/* 1. LOGIKA LOADING */}
+            {isLoading ? (
+              <div className="w-full h-full flex items-center justify-center z-50">
+                <Loading />
+              </div>
+            ) : (
+              /* 2. LOGIKA KONTEN HALAMAN (Jika tidak loading) */
+              <>
+                {activeScreen === "default" && (
+                  <svg
+                    width="100%"
+                    height="100%"
+                    viewBox="0 0 206 206"
+                    preserveAspectRatio="none"
+                    className="w-full h-full"
+                  >
+                    <Logo
+                      width="100%"
+                      height="100%"
+                      onFinish={() => setActiveScreen("profile")}
+                    />
+                  </svg>
+                )}
+
+                {activeScreen === "profile" && (
+                  <div className="w-full h-full overflow-auto">
+                    <DetailProfile />
+                  </div>
+                )}
+
+                {activeScreen === "contact" && (
+                  <div className="w-full h-full overflow-hidden">
+                    <Contactme />
+                  </div>
+                )}
+
+                {activeScreen === "education" && (
+                  <svg
+                    width="100%"
+                    height="100%"
+                    viewBox="0 0 2645 1488"
+                    preserveAspectRatio="none"
+                    className="w-full h-full"
+                  >
+                    <DetailEducation width="100%" height="100%" />
+                  </svg>
+                )}
+              </>
+            )}
+
+            {/* Efek Glare Layar (Overlay) */}
+            <div className="absolute inset-0 bg-white opacity-5 pointer-events-none rounded-[14px]"></div>
+          </div>
+        </foreignObject>
       </g>
       {/* ================= END AREA LAYAR ================= */}
       <rect
@@ -707,7 +723,8 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         id="Button_Y_Interactive"
         onClick={() => {
           playGameSound();
-          setActiveScreen("contact"); // AKSI BUTTON Y
+          setActiveScreen("contact"); 
+          handleNavigation('contact');
         }}
         className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
         style={{
@@ -1497,6 +1514,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         onClick={() => {
           playGameSound();
           setActiveScreen("profile");
+          handleNavigation('profile');
         }}
         className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
         style={{
@@ -1615,6 +1633,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         onClick={() => {
           playGameSound();
           setActiveScreen("education");
+          handleNavigation('education');
         }}
         className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
         style={{
