@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import DetailProfile from "./Profile/DetailProfile";     
 import DetailEducation from "./Education/DetailEducation"; 
-import Contactme from "./Contact/Contactme";
-import Logo from "./Splashscreen/Logo";
+import Contactme from "./contact/Contactme";
+import Logo from "./splashscreen/Logo";
 
 const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
   const [activeScreen, setActiveScreen] = useState<
