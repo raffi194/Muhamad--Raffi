@@ -270,17 +270,18 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
       )}
 
       {activeScreen === "profile" && (
-        // Tampilan Profile
-        <svg
+        // PERBAIKAN DI SINI: Gunakan foreignObject karena DetailProfile isinya HTML (div)
+        <foreignObject
           x={195.757}
           y={24.1648}
           width={825.267}
           height={477.615}
-          viewBox="0 0 1217 519"
-          preserveAspectRatio="none"
         >
-          <DetailProfile width="100%" height="100%" />
-        </svg>
+          {/* Tambahkan w-full h-full agar div mengisi area foreignObject */}
+          <div className="w-full h-full">
+             <DetailProfile />
+          </div>
+        </foreignObject>
       )}
 
       {activeScreen === "education" && (
