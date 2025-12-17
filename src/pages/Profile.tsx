@@ -1,4 +1,4 @@
-import Nintendo from "../component/Profile/Nintendo";
+import Nintendo from "../component/Nintendo";
 
 const Profile = () => {
   return (

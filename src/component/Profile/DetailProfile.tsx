@@ -89,51 +89,6 @@ const DetailProfile = () => {
               that interest me and can help me grow.
             </p>
           </div>
-
-          {/* Card 2: Skills (Horizontal Scroll Badges) */}
-          <div className="bg-white/5 rounded-xl p-5 border border-white/10 hover:border-white/20 transition-colors relative overflow-hidden">
-            {/* Header Skills */}
-            <div className="flex items-center gap-2 mb-4 text-hijau">
-              <Code size={18} />
-              <h2 className="font-bold tracking-wide text-sm uppercase">
-                Skills
-              </h2>
-            </div>
-
-            {/* Scrollable Container */}
-            <div className="flex items-center gap-4 overflow-x-auto pb-2 w-full [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-              
-              {/* === MAPPING SKILLS === */}
-              {/* Tombol 'Add' sudah dihapus. Semua item di sini di-render dari data SKILLS_DATA */}
-              {SKILLS_DATA.map((skill) => (
-                <div key={skill.name} className="flex-shrink-0 group flex flex-col items-center p-2">
-                  {/* Circle Badge Container */}
-                  <div className="w-14 h-14 rounded-full bg-neutral-900/80 border border-white/10 flex items-center justify-center p-3 shadow-lg group-hover:scale-110 group-hover:border-blue-400/50 transition-all duration-300 relative overflow-hidden">
-                     
-                     {/* GLOW EFFECT: 
-                         Diterapkan ke SEMUA item tanpa terkecuali.
-                         Muncul saat parent (.group) di-hover. 
-                     */}
-                     <div className="absolute inset-0 z-0 bg-blue-500/60 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                     
-                     {/* Icon Skill */}
-                     <img 
-                        src={skill.icon} 
-                        alt={skill.name} 
-                        className="w-full h-full object-contain relative z-10" 
-                     />
-                  </div>
-                  
-                  {/* Label Nama Skill */}
-                  <p className="text-[10px] text-center mt-2 text-abu-muda font-mono opacity-80 group-hover:opacity-100 group-hover:text-white transition-all">
-                    {skill.name}
-                  </p>
-                </div>
-              ))}
-              
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
