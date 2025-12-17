@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import DetailProfile from "./profile/DetailProfile";
 import DetailEducation from "./education/DetailEducation";
-import Logo from "../component/splashscreen/Logo";
+import Logo from "./splashscreen/Logo";
 
-export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
+const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
   const [activeScreen, setActiveScreen] = useState<
     "default" | "profile" | "education"
   >("default");
@@ -253,38 +253,32 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
     </g>
     {/* ================= AREA LAYAR (SCREEN) ================= */}
     <g id="Nintendo_Screen_Area">
-      {/* Logika Kondisional: Render konten berdasarkan state activeScreen */}
-
       {activeScreen === "default" && (
-        // Tampilan Default (Sekarang memuat Logo / Splash Screen)
+        // Tampilan Default: Memuat Logo
+        // viewBox disesuaikan dengan ukuran asli file Logo.tsx (206x206)
         <svg
           x={195.757}
           y={24.1648}
           width={825.267}
           height={477.615}
-          // PENTING: viewBox ini harus sama dengan yang ada di file Logo.tsx (0 0 206 206)
-          viewBox="0 0 206 206" 
-          preserveAspectRatio="none" // Agar gambar background logo memenuhi seluruh layar
+          viewBox="0 0 206 206"
+          preserveAspectRatio="none"
         >
-          {/* Memanggil komponen Logo */}
           <Logo width="100%" height="100%" />
         </svg>
       )}
 
       {activeScreen === "profile" && (
-        // Tampilan Profile (Dimuat dalam ForeignObject atau SVG nested)
-        // Kita menggunakan SVG nested agar responsif dan tidak perlu foreignObject HTML
+        // Tampilan Profile
         <svg
           x={195.757}
           y={24.1648}
           width={825.267}
           height={477.615}
-          viewBox="0 0 1217 519" // Sesuaikan dengan viewBox asli file DetailProfile.tsx
-          preserveAspectRatio="none" // Agar gambar memenuhi layar
+          viewBox="0 0 1217 519"
+          preserveAspectRatio="none"
         >
-          {/* Render Komponen DetailProfile di sini */}
           <DetailProfile width="100%" height="100%" />
-          {/* Catatan: Pastikan DetailProfile menerima props dan meneruskannya ke <svg> root-nya */}
         </svg>
       )}
 
@@ -295,14 +289,14 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
           y={24.1648}
           width={825.267}
           height={477.615}
-          viewBox="0 0 2645 1488" // Sesuaikan dengan viewBox asli file DetailEducation.tsx
+          viewBox="0 0 2645 1488"
           preserveAspectRatio="none"
         >
           <DetailEducation width="100%" height="100%" />
         </svg>
       )}
 
-      {/* Efek Kaca/Glare Layar (Opsional: Tetap di atas konten agar terlihat realistis) */}
+      {/* Efek Glare Layar */}
       <rect
         x={195.757}
         y={24.1648}
@@ -311,7 +305,7 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         rx={14.6209}
         fill="white"
         fillOpacity="0.05"
-        pointerEvents="none" // Agar klik tembus ke konten di bawahnya jika ada interaksi
+        pointerEvents="none"
       />
     </g>
     {/* ================= END AREA LAYAR ================= */}
@@ -1314,13 +1308,11 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
     <g
       id="Button_Home_Interactive"
       onClick={() => {
-        playGameSound(); // Panggil efek suara
+        playGameSound();
         setActiveScreen("default");
-        console.log("Button Home Pressed!");
       }}
       className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
       style={{
-        // PENTING: Titik pusat animasi diambil dari cx/cy lingkaran tengah tombol Home
         transformOrigin: "1098.19px 373.442px",
         transformBox: "view-box",
       }}
@@ -1366,6 +1358,7 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
           />
         </g>
       </g>
+      <circle cx={1098.19} cy={373.442} r={20} fill="transparent" />
     </g>
     {/* === BUTTON HOME WRAPPER END === */}
     <g filter="url(#filter84_f_974_13840)">
@@ -1491,13 +1484,11 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
     <g
       id="Analog_R_Interactive"
       onClick={() => {
-        playGameSound(); // Panggil efek suara
-        setActiveScreen("profile"); // Set state ke Profile
-        console.log("Navigating to Profile...");
+        playGameSound();
+        setActiveScreen("profile");
       }}
       className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
       style={{
-        // PENTING: Titik pusat animasi diambil dari cx/cy lingkaran tengah analog R
         transformOrigin: "1126.21px 277.187px",
         transformBox: "view-box",
       }}
@@ -1565,6 +1556,7 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
           />
         </g>
       </g>
+      <circle cx={1126.21} cy={277.187} r={30} fill="transparent" />
     </g>
     {/* === ANALOG R WRAPPER END === */}
     <g filter="url(#filter99_f_974_13840)">
@@ -1604,13 +1596,11 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
     <g
       id="Analog_L_Interactive"
       onClick={() => {
-        playGameSound(); // Panggil efek suara
-        setActiveScreen("education"); // Set state ke Education
-        console.log("Navigating to Education...");
+        playGameSound();
+        setActiveScreen("education");
       }}
       className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
       style={{
-        // PENTING: Titik pusat animasi diambil dari cx/cy lingkaran tengah analog
         transformOrigin: "90.5686px 135.04px",
         transformBox: "view-box",
       }}
@@ -1678,6 +1668,7 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
           />
         </g>
       </g>
+      <circle cx={90.5686} cy={135.04} r={30} fill="transparent" />
     </g>
     {/* === ANALOG L WRAPPER END === */}
     <defs>
@@ -6002,6 +5993,6 @@ export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         <stop offset={1} stopColor="#7F8084" />
       </linearGradient>
     </defs>
-  </svg>
+  </svg>;
 };
 export default Nintendo;
