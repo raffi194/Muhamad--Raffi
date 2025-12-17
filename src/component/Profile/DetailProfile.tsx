@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FileText, GraduationCap, Award, FileUser } from "lucide-react";
 import ProfileBgImg from "../../assets/Profilebg.png";
 
@@ -147,7 +147,7 @@ const NintendoIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const DetailProfile = (props: React.SVGProps<SVGSVGElement>) => {
+const DetailProfile = () => {
   return (
     <div className="relative w-full h-full">
       {/* 1. LAYER BACKGROUND IMAGE */}
