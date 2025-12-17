@@ -1,7 +1,7 @@
 "use client";
 
 import { Routes, Route, useNavigate } from "react-router-dom";
-import Nintendo from '../src/component/Nintendo';
+import Nintendo from './pages/Page';
 
 // --- APP UTAMA ---
 export default function App() {

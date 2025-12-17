@@ -43,6 +43,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
     oscillator.stop(ctx.currentTime + 0.1); // Stop setelah 100ms
   };
 
+  return (
   <svg
     width={1217}
     height={519}
@@ -5993,6 +5994,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         <stop offset={1} stopColor="#7F8084" />
       </linearGradient>
     </defs>
-  </svg>;
+  </svg>
+  );
 };
 export default Nintendo;
