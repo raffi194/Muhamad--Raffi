@@ -38,7 +38,7 @@ const InteractiveMascot = () => {
   const headRotate = mousePos.x * 8; // Rotasi kepala mengikuti mouse
 
   return (
-    <svg viewBox="0 0 200 200" className="w-full h-full bg-gradient-to-b from-blue-900 to-black">
+    <svg viewBox="0 0 200 200" className="w-full h-full bg-linear-to-b from-blue-900 to-black">
       <defs>
         <radialGradient id="furGrad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
           <stop offset="0%" stopColor="#D97B29" />
@@ -147,7 +147,7 @@ const NintendoIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const DetailProfile = () => {
+const DetailProfile = (_props: React.SVGProps<SVGSVGElement>) => {
   return (
     <div className="relative w-full h-full">
       {/* 1. LAYER BACKGROUND IMAGE */}
@@ -171,7 +171,7 @@ const DetailProfile = () => {
             </div>
 
             <div>
-              <h1 className="text-3xl font-bold tracking-wide bg-clip-text bg-gradient-to-r text-blue-300 drop-shadow-sm">
+              <h1 className="text-3xl font-bold tracking-wide bg-clip-text text-blue-300 drop-shadow-sm">
                 Muhamad Raffi
               </h1>
               <div className="flex items-center gap-2 text-neutral-300 mt-1">
