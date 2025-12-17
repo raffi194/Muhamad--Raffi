@@ -1,39 +1,48 @@
-import * as React from "react";
+import React, { useState } from "react";
+import DetailProfile from "./profile/DetailProfile";
+import DetailEducation from "./education/DetailEducation";
+import Logo from "../component/splashscreen/Logo";
 
-// Fungsi untuk membuat suara "blip" Nintendo tanpa file mp3
+export const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
+  const [activeScreen, setActiveScreen] = useState<
+    "default" | "profile" | "education"
+  >("default");
+
   const playGameSound = () => {
     // 1. Inisialisasi Audio Context
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    const AudioContext =
+      window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
-    
+
     const ctx = new AudioContext();
-    
+
     // 2. Buat Oscillator (sumber suara) dan Gain (pengatur volume)
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
-    
+
     // 3. Konfigurasi Suara (Ala Nintendo Switch UI)
     // Menggunakan gelombang 'triangle' agar terdengar retro tapi halus
-    oscillator.type = 'triangle'; 
-    
+    oscillator.type = "triangle";
+
     // Frekuensi mulai dari 600Hz dan naik sedikit (efek "tu-wit")
     oscillator.frequency.setValueAtTime(600, ctx.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
-    
+    oscillator.frequency.exponentialRampToValueAtTime(
+      1200,
+      ctx.currentTime + 0.1
+    );
+
     // 4. Konfigurasi Volume (Fade out cepat)
     gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Volume awal 10%
     gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.1);
-    
+
     // 5. Mainkan suara
     oscillator.start();
     oscillator.stop(ctx.currentTime + 0.1); // Stop setelah 100ms
   };
 
-const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
-  
   <svg
     width={1217}
     height={519}
@@ -242,14 +251,70 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
         />
       </g>
     </g>
-    <rect
-      x={195.757}
-      y={24.1648}
-      width={825.267}
-      height={477.615}
-      rx={14.6209}
-      fill="#050505"
-    />
+    {/* ================= AREA LAYAR (SCREEN) ================= */}
+    <g id="Nintendo_Screen_Area">
+      {/* Logika Kondisional: Render konten berdasarkan state activeScreen */}
+
+      {activeScreen === "default" && (
+        // Tampilan Default (Sekarang memuat Logo / Splash Screen)
+        <svg
+          x={195.757}
+          y={24.1648}
+          width={825.267}
+          height={477.615}
+          // PENTING: viewBox ini harus sama dengan yang ada di file Logo.tsx (0 0 206 206)
+          viewBox="0 0 206 206" 
+          preserveAspectRatio="none" // Agar gambar background logo memenuhi seluruh layar
+        >
+          {/* Memanggil komponen Logo */}
+          <Logo width="100%" height="100%" />
+        </svg>
+      )}
+
+      {activeScreen === "profile" && (
+        // Tampilan Profile (Dimuat dalam ForeignObject atau SVG nested)
+        // Kita menggunakan SVG nested agar responsif dan tidak perlu foreignObject HTML
+        <svg
+          x={195.757}
+          y={24.1648}
+          width={825.267}
+          height={477.615}
+          viewBox="0 0 1217 519" // Sesuaikan dengan viewBox asli file DetailProfile.tsx
+          preserveAspectRatio="none" // Agar gambar memenuhi layar
+        >
+          {/* Render Komponen DetailProfile di sini */}
+          <DetailProfile width="100%" height="100%" />
+          {/* Catatan: Pastikan DetailProfile menerima props dan meneruskannya ke <svg> root-nya */}
+        </svg>
+      )}
+
+      {activeScreen === "education" && (
+        // Tampilan Education
+        <svg
+          x={195.757}
+          y={24.1648}
+          width={825.267}
+          height={477.615}
+          viewBox="0 0 2645 1488" // Sesuaikan dengan viewBox asli file DetailEducation.tsx
+          preserveAspectRatio="none"
+        >
+          <DetailEducation width="100%" height="100%" />
+        </svg>
+      )}
+
+      {/* Efek Kaca/Glare Layar (Opsional: Tetap di atas konten agar terlihat realistis) */}
+      <rect
+        x={195.757}
+        y={24.1648}
+        width={825.267}
+        height={477.615}
+        rx={14.6209}
+        fill="white"
+        fillOpacity="0.05"
+        pointerEvents="none" // Agar klik tembus ke konten di bawahnya jika ada interaksi
+      />
+    </g>
+    {/* ================= END AREA LAYAR ================= */}
     <rect
       x={168.141}
       y={33.9116}
@@ -1250,6 +1315,7 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
       id="Button_Home_Interactive"
       onClick={() => {
         playGameSound(); // Panggil efek suara
+        setActiveScreen("default");
         console.log("Button Home Pressed!");
       }}
       className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
@@ -1426,7 +1492,8 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
       id="Analog_R_Interactive"
       onClick={() => {
         playGameSound(); // Panggil efek suara
-        console.log("Analog R Pressed!");
+        setActiveScreen("profile"); // Set state ke Profile
+        console.log("Navigating to Profile...");
       }}
       className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
       style={{
@@ -1446,13 +1513,7 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
             height={82}
             fill="black"
           >
-            <rect
-              fill="white"
-              x={1085.63}
-              y={236.604}
-              width={82}
-              height={82}
-            />
+            <rect fill="white" x={1085.63} y={236.604} width={82} height={82} />
             <path
               fillRule="evenodd"
               clipRule="evenodd"
@@ -1544,7 +1605,8 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
       id="Analog_L_Interactive"
       onClick={() => {
         playGameSound(); // Panggil efek suara
-        console.log("Analog L Pressed!");
+        setActiveScreen("education"); // Set state ke Education
+        console.log("Navigating to Education...");
       }}
       className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
       style={{
@@ -1564,13 +1626,7 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
             height={82}
             fill="black"
           >
-            <rect
-              fill="white"
-              x={49.9871}
-              y={94.4572}
-              width={82}
-              height={82}
-            />
+            <rect fill="white" x={49.9871} y={94.4572} width={82} height={82} />
             <path
               fillRule="evenodd"
               clipRule="evenodd"
@@ -5947,5 +6003,5 @@ const SVGComponent = (props: React.SVGProps<SVGSVGElement>) => (
       </linearGradient>
     </defs>
   </svg>
-);
-export default SVGComponent;
+};
+export default Nintendo;

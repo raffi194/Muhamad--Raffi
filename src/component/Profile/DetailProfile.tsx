@@ -16,7 +16,7 @@ const SKILLS_DATA = [
   { name: "MySQL", icon: "https://cdn.simpleicons.org/mysql/4479A1" },
 ];
 
-const DetailProfile = () => {
+const DetailProfile = (props: React.SVGProps<SVGSVGElement>) => {
   return (
     <div className="relative w-full h-full">
       {/* 1. LAYER BACKGROUND IMAGE */}
