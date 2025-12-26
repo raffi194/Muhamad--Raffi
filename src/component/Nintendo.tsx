@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Home from "./Home/Home";
 import DetailProfile from "./Profile/DetailProfile";
 import DetailEducation from "./Education/DetailEducation";
 import Contactme from "./contact/Contactme";
@@ -7,7 +8,7 @@ import Loading from "./Loading";
 
 const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
   const [activeScreen, setActiveScreen] = useState<
-    "default" | "profile" | "education" | "contact"
+    "default" | "home" | "profile" | "education" | "contact"
   >("default");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -60,9 +61,12 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
 
     // d. Tunggu sebentar (misal 2 detik) lalu ganti halaman
     setTimeout(() => {
-      const validScreens: ("default" | "profile" | "education" | "contact")[] = ["default", "profile", "education", "contact"];
+      const validScreens: ("default" | "profile" | "education" | "contact")[] =
+        ["default", "profile", "education", "contact"];
       if (validScreens.includes(targetScreen as any)) {
-        setActiveScreen(targetScreen as "default" | "profile" | "education" | "contact");
+        setActiveScreen(
+          targetScreen as "default" | "profile" | "education" | "contact"
+        );
       }
       setIsLoading(false); // Matikan loading
     }, 2000); // Ubah 2000 (2 detik) sesuai keinginan
@@ -279,39 +283,49 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
       </g>
       {/* ================= AREA LAYAR (SCREEN) ================= */}
       <g id="Nintendo_Screen_Area">
-        {/* SATU ForeignObject UNTUK MENANGANI SEMUA SCREEN & LOADING */}
         <foreignObject
           x={195.757}
           y={24.1648}
           width={825.267}
           height={477.615}
-          className="overflow-hidden rounded-[14px]" // Optional: styling tambahan agar rapi
+          className="overflow-hidden rounded-[14px]"
         >
           <div className="w-full h-full bg-[#1a1a1a] relative">
-            {/* 1. LOGIKA LOADING */}
+            {/* 1. LAYER LOADING (Prioritas Tertinggi) */}
             {isLoading ? (
-              <div className="w-full h-full flex items-center justify-center z-50">
+              <div className="w-full h-full flex items-center justify-center z-50 bg-black">
                 <Loading />
               </div>
             ) : (
-              /* 2. LOGIKA KONTEN HALAMAN (Jika tidak loading) */
+              /* 2. LAYER KONTEN */
               <>
+                {/* STATE DEFAULT: Menampilkan Logo Startup */}
                 {activeScreen === "default" && (
                   <svg
                     width="100%"
                     height="100%"
                     viewBox="0 0 206 206"
                     preserveAspectRatio="none"
-                    className="w-full h-full"
                   >
                     <Logo
                       width="100%"
                       height="100%"
-                      onFinish={() => setActiveScreen("profile")}
+                      // PERUBAHAN DISINI: Setelah Logo selesai, masuk ke HOME
+                      onFinish={() => setActiveScreen("home")}
                     />
                   </svg>
                 )}
 
+                {/* STATE HOME: Menampilkan Menu Utama (Home.tsx) */}
+                {activeScreen === "home" && (
+                  <div className="w-full h-full">
+                    {/* Home adalah SVG, jadi bisa dibungkus div atau svg tergantung implementasi Home.tsx */}
+                    {/* Karena Home.tsx yang diperbaiki sebelumnya adalah <svg>, kita render langsung */}
+                    <Home width="100%" height="100%" />
+                  </div>
+                )}
+
+                {/* STATE LAINNYA */}
                 {activeScreen === "profile" && (
                   <div className="w-full h-full overflow-auto">
                     <DetailProfile />
@@ -330,7 +344,6 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
                     height="100%"
                     viewBox="0 0 2645 1488"
                     preserveAspectRatio="none"
-                    className="w-full h-full"
                   >
                     <DetailEducation width="100%" height="100%" />
                   </svg>
@@ -338,7 +351,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
               </>
             )}
 
-            {/* Efek Glare Layar (Overlay) */}
+            {/* Efek Glare */}
             <div className="absolute inset-0 bg-white opacity-5 pointer-events-none rounded-[14px]"></div>
           </div>
         </foreignObject>
@@ -723,8 +736,8 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         id="Button_Y_Interactive"
         onClick={() => {
           playGameSound();
-          setActiveScreen("contact"); 
-          handleNavigation('contact');
+          setActiveScreen("contact");
+          handleNavigation("contact");
         }}
         className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
         style={{
@@ -1514,7 +1527,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         onClick={() => {
           playGameSound();
           setActiveScreen("profile");
-          handleNavigation('profile');
+          handleNavigation("profile");
         }}
         className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
         style={{
@@ -1633,7 +1646,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
         onClick={() => {
           playGameSound();
           setActiveScreen("education");
-          handleNavigation('education');
+          handleNavigation("education");
         }}
         className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
         style={{
