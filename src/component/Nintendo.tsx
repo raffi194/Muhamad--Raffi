@@ -3,12 +3,13 @@ import Home from "./Home/Home";
 import DetailProfile from "./Profile/DetailProfile";
 import DetailEducation from "./Education/DetailEducation";
 import Contactme from "./contact/Contactme";
+import DetailSkill from "./Skill/DetailSkill";
 import Logo from "./splashscreen/Logo";
 import Loading from "./Loading";
 
 const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
   const [activeScreen, setActiveScreen] = useState<
-    "default" | "home" | "profile" | "education" | "contact"
+    "default" | "home" | "profile" | "education" | "skill" | "contact"
   >("default");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -347,6 +348,12 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
                   >
                     <DetailEducation width="100%" height="100%" />
                   </svg>
+                )}
+
+                {activeScreen === "skill" && (
+                  <div className="w-full h-full">
+                    <DetailSkill />
+                  </div>
                 )}
               </>
             )}
@@ -831,12 +838,11 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
       <g
         id="Button_X_Interactive"
         onClick={() => {
-          playGameSound(); // Panggil efek suara
-          console.log("Button X Pressed!");
+          playGameSound();
+          handleNavigation("skill"); // <--- UBAH DI SINI
         }}
         className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
         style={{
-          // PENTING: Titik pusat animasi disesuaikan dengan cx/cy tombol X
           transformOrigin: "1126.62px 97.2709px",
           transformBox: "view-box",
         }}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import SkillBgImg from "../../assets/SkillBgImg.png";
+import SkillBgImg from "../../assets/SkillBg.png";
 
 const DetailSkill = (props: React.SVGProps<SVGSVGElement>) => {
   return (
