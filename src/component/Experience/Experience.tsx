@@ -56,7 +56,7 @@ const DetailExperience = (props: React.SVGProps<SVGSVGElement>) => {
   // 1. Jika view 'events', tampilkan component Events
   if (currentView === "events") {
     // Anda bisa passing props onBack={handleBack} jika di component Events ada tombol back
-    return <Events width="100%" height="100%" />;
+    return <Events width="100%" height="100%" onBack={handleBackToMenu}  />;
   }
 
   // 2. Jika view 'organizations', tampilkan component Organizations
@@ -70,7 +70,7 @@ const DetailExperience = (props: React.SVGProps<SVGSVGElement>) => {
 
   // 3. Jika view 'working', tampilkan component Working
   if (currentView === "working") {
-    return <Working width="100%" height="100%" />;
+    return <Working width="100%" height="100%" onBack={handleBackToMenu} />;
   }
   return (
     <svg

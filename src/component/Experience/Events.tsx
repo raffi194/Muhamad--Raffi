@@ -1,7 +1,49 @@
 import * as React from "react";
+import { useState } from "react";
 import Experienceisibg from "../../assets/experienceisibg.png";
 
-const Events = (props: React.SVGProps<SVGSVGElement>) => {
+interface EventsProps extends React.SVGProps<SVGSVGElement> {
+  onBack?: () => void;
+}
+
+const Events = (props: EventsProps) => {
+  // --- MULAI TAMBAHAN LOGIC ---
+  const [isPressed, setIsPressed] = useState(false);
+
+  const playNintendoSound = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.type = "triangle";
+      oscillator.frequency.setValueAtTime(600, ctx.currentTime);
+      oscillator.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.1);
+
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.1);
+    } catch (error) {
+      console.error("Audio play error:", error);
+    }
+  };
+
+  const handleBackNavigation = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    playNintendoSound();
+    setIsPressed(true);
+    setTimeout(() => {
+      setIsPressed(false);
+      if (props.onBack) props.onBack();
+    }, 150);
+  };
+  // --- AKHIR TAMBAHAN LOGIC ---
   return (
     <svg
       width={2644}
@@ -9,6 +51,7 @@ const Events = (props: React.SVGProps<SVGSVGElement>) => {
       viewBox="0 0 2644 1471"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      style={{ pointerEvents: "none" }}
       {...props}
     >
       <image
@@ -54,17 +97,46 @@ const Events = (props: React.SVGProps<SVGSVGElement>) => {
         <rect fill="white" x={46.0571} y={107.057} width={154} height={130} />
         <path d="M84.6986 170.024L181.235 131.939L177.947 159.521L136.575 171.948L174.66 185.098L170.731 213.401L84.6986 170.024Z" />
       </mask>
-      <g filter="url(#filter1_i_1143_3787)">
+
+      {/* 2. GROUP WRAPPER INTERAKTIF (Ini kunci agar bisa diklik & animasi) */}
+      <g
+        onClick={handleBackNavigation}
+        style={{
+          cursor: "pointer",
+          pointerEvents: "all", // Wajib: Mengaktifkan klik
+          transform: isPressed ? "scale(0.90)" : "scale(1)", // Animasi tekan
+          transition: "transform 0.1s ease-in-out",
+          transformBox: "fill-box",
+          transformOrigin: "center",
+        }}
+      >
+        {/* Hitbox Transparan (Agar area klik lebih luas & mudah dipencet) */}
+        <rect
+          x={46}
+          y={107}
+          width={160}
+          height={130}
+          fill="transparent"
+          style={{ pointerEvents: "all" }}
+        />
+
+        {/* Visual Panah Kuning */}
+        <g filter="url(#filter1_i_1143_3787)">
+          <path
+            d="M84.6986 170.024L181.235 131.939L177.947 159.521L136.575 171.948L174.66 185.098L170.731 213.401L84.6986 170.024Z"
+            fill="#FFE460"
+            style={{ pointerEvents: "none" }} // Biarkan rect transparan yang menangani event klik
+          />
+        </g>
+
+        {/* Visual Panah Biru */}
         <path
-          d="M84.6986 170.024L181.235 131.939L177.947 159.521L136.575 171.948L174.66 185.098L170.731 213.401L84.6986 170.024Z"
-          fill="#FFE460"
+          d="M84.6986 170.024L79.0226 155.637L46.9254 168.3L77.7356 183.834L84.6986 170.024ZM181.235 131.939L196.592 133.769L199.658 108.044L175.559 117.552L181.235 131.939ZM177.947 159.521L182.397 174.333L192.105 171.417L193.305 161.351L177.947 159.521ZM136.575 171.948L132.125 157.136L86.2208 170.925L131.527 186.568L136.575 171.948ZM174.66 185.098L189.979 187.224L191.728 174.629L179.707 170.478L174.66 185.098ZM170.731 213.401L163.768 227.211L183.077 236.947L186.05 215.528L170.731 213.401ZM84.6986 170.024L90.3745 184.411L186.911 146.326L181.235 131.939L175.559 117.552L79.0226 155.637L84.6986 170.024ZM181.235 131.939L165.877 130.108L162.59 157.69L177.947 159.521L193.305 161.351L196.592 133.769L181.235 131.939ZM177.947 159.521L173.498 144.708L132.125 157.136L136.575 171.948L141.024 186.761L182.397 174.333L177.947 159.521ZM136.575 171.948L131.527 186.568L169.612 199.717L174.66 185.098L179.707 170.478L141.622 157.329L136.575 171.948ZM174.66 185.098L159.341 182.971L155.412 211.275L170.731 213.401L186.05 215.528L189.979 187.224L174.66 185.098ZM170.731 213.401L177.694 199.591L91.6616 156.214L84.6986 170.024L77.7356 183.834L163.768 227.211L170.731 213.401Z"
+          fill="#0F6DE9"
+          mask="url(#path-3-outside-2_1143_3787)"
+          style={{ pointerEvents: "none" }}
         />
       </g>
-      <path
-        d="M84.6986 170.024L79.0226 155.637L46.9254 168.3L77.7356 183.834L84.6986 170.024ZM181.235 131.939L196.592 133.769L199.658 108.044L175.559 117.552L181.235 131.939ZM177.947 159.521L182.397 174.333L192.105 171.417L193.305 161.351L177.947 159.521ZM136.575 171.948L132.125 157.136L86.2208 170.925L131.527 186.568L136.575 171.948ZM174.66 185.098L189.979 187.224L191.728 174.629L179.707 170.478L174.66 185.098ZM170.731 213.401L163.768 227.211L183.077 236.947L186.05 215.528L170.731 213.401ZM84.6986 170.024L90.3745 184.411L186.911 146.326L181.235 131.939L175.559 117.552L79.0226 155.637L84.6986 170.024ZM181.235 131.939L165.877 130.108L162.59 157.69L177.947 159.521L193.305 161.351L196.592 133.769L181.235 131.939ZM177.947 159.521L173.498 144.708L132.125 157.136L136.575 171.948L141.024 186.761L182.397 174.333L177.947 159.521ZM136.575 171.948L131.527 186.568L169.612 199.717L174.66 185.098L179.707 170.478L141.622 157.329L136.575 171.948ZM174.66 185.098L159.341 182.971L155.412 211.275L170.731 213.401L186.05 215.528L189.979 187.224L174.66 185.098ZM170.731 213.401L177.694 199.591L91.6616 156.214L84.6986 170.024L77.7356 183.834L163.768 227.211L170.731 213.401Z"
-        fill="#0F6DE9"
-        mask="url(#path-3-outside-2_1143_3787)"
-      />
       <defs>
         <filter
           id="filter0_i_1143_3787"

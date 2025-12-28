@@ -1,6 +1,49 @@
 import * as React from "react";
+import { useState } from "react";
 import Experienceisibg from "../../assets/experienceisibg.png";
-const Working = (props: React.SVGProps<SVGSVGElement>) => {
+
+interface EventsProps extends React.SVGProps<SVGSVGElement> {
+  onBack?: () => void;
+}
+
+const Working = (props: EventsProps) => {
+
+const [isPressed, setIsPressed] = useState(false);
+
+  const playNintendoSound = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.type = "triangle";
+      oscillator.frequency.setValueAtTime(600, ctx.currentTime);
+      oscillator.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.1);
+
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.1);
+    } catch (error) {
+      console.error("Audio play error:", error);
+    }
+  };
+
+  const handleBackNavigation = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    playNintendoSound();
+    setIsPressed(true);
+    setTimeout(() => {
+      setIsPressed(false);
+      if (props.onBack) props.onBack();
+    }, 150);
+  };
+  
   return (
     <svg
       width={2644}
@@ -8,6 +51,7 @@ const Working = (props: React.SVGProps<SVGSVGElement>) => {
       viewBox="0 0 2644 1471"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      style={{ pointerEvents: "none" }}
       {...props}
     >
       <image
@@ -53,17 +97,46 @@ const Working = (props: React.SVGProps<SVGSVGElement>) => {
         <rect fill="white" x={46.0479} y={108.049} width={154} height={129} />
         <path d="M84.6892 170.026L181.214 131.945L177.927 159.524L136.56 171.95L174.64 185.098L170.712 213.398L84.6892 170.026Z" />
       </mask>
-      <g filter="url(#filter1_i_1145_10757)">
+
+      {/* 2. GROUP WRAPPER INTERAKTIF */}
+      <g
+        onClick={handleBackNavigation}
+        style={{
+          cursor: "pointer",
+          pointerEvents: "all", // Aktifkan pointer events
+          transform: isPressed ? "scale(0.90)" : "scale(1)", // Animasi tekan
+          transition: "transform 0.1s ease-in-out",
+          transformBox: "fill-box",
+          transformOrigin: "center",
+        }}
+      >
+        {/* Hitbox Transparan (Area Sentuh) */}
+        <rect
+          x={46}
+          y={108}
+          width={160}
+          height={130}
+          fill="transparent"
+          style={{ pointerEvents: "all" }}
+        />
+
+        {/* Visual Panah Kuning */}
+        <g filter="url(#filter1_i_1145_10757)">
+          <path
+            d="M84.6892 170.026L181.214 131.945L177.927 159.524L136.56 171.95L174.64 185.098L170.712 213.398L84.6892 170.026Z"
+            fill="#FFE460"
+            style={{ pointerEvents: "none" }}
+          />
+        </g>
+
+        {/* Visual Panah Biru */}
         <path
-          d="M84.6892 170.026L181.214 131.945L177.927 159.524L136.56 171.95L174.64 185.098L170.712 213.398L84.6892 170.026Z"
-          fill="#FFE460"
+          d="M84.6892 170.026L79.0139 155.64L46.9203 168.302L77.727 183.834L84.6892 170.026ZM181.214 131.945L196.57 133.775L199.636 108.053L175.539 117.559L181.214 131.945ZM177.927 159.524L182.376 174.334L192.084 171.418L193.283 161.354L177.927 159.524ZM136.56 171.95L132.111 157.139L86.2113 170.927L131.513 186.568L136.56 171.95ZM174.64 185.098L189.958 187.224L191.706 174.63L179.687 170.48L174.64 185.098ZM170.712 213.398L163.75 227.207L183.057 236.941L186.03 215.524L170.712 213.398ZM84.6892 170.026L90.3645 184.411L186.89 146.33L181.214 131.945L175.539 117.559L79.0139 155.64L84.6892 170.026ZM181.214 131.945L165.859 130.115L162.572 157.693L177.927 159.524L193.283 161.354L196.57 133.775L181.214 131.945ZM177.927 159.524L173.479 144.713L132.111 157.139L136.56 171.95L141.008 186.761L182.376 174.334L177.927 159.524ZM136.56 171.95L131.513 186.568L169.594 199.716L174.64 185.098L179.687 170.48L141.606 157.332L136.56 171.95ZM174.64 185.098L159.323 182.972L155.395 211.272L170.712 213.398L186.03 215.524L189.958 187.224L174.64 185.098ZM170.712 213.398L177.674 199.59L91.6514 156.217L84.6892 170.026L77.727 183.834L163.75 227.207L170.712 213.398Z"
+          fill="#0F6DE9"
+          mask="url(#path-3-outside-2_1145_10757)"
+          style={{ pointerEvents: "none" }}
         />
       </g>
-      <path
-        d="M84.6892 170.026L79.0139 155.64L46.9203 168.302L77.727 183.834L84.6892 170.026ZM181.214 131.945L196.57 133.775L199.636 108.053L175.539 117.559L181.214 131.945ZM177.927 159.524L182.376 174.334L192.084 171.418L193.283 161.354L177.927 159.524ZM136.56 171.95L132.111 157.139L86.2113 170.927L131.513 186.568L136.56 171.95ZM174.64 185.098L189.958 187.224L191.706 174.63L179.687 170.48L174.64 185.098ZM170.712 213.398L163.75 227.207L183.057 236.941L186.03 215.524L170.712 213.398ZM84.6892 170.026L90.3645 184.411L186.89 146.33L181.214 131.945L175.539 117.559L79.0139 155.64L84.6892 170.026ZM181.214 131.945L165.859 130.115L162.572 157.693L177.927 159.524L193.283 161.354L196.57 133.775L181.214 131.945ZM177.927 159.524L173.479 144.713L132.111 157.139L136.56 171.95L141.008 186.761L182.376 174.334L177.927 159.524ZM136.56 171.95L131.513 186.568L169.594 199.716L174.64 185.098L179.687 170.48L141.606 157.332L136.56 171.95ZM174.64 185.098L159.323 182.972L155.395 211.272L170.712 213.398L186.03 215.524L189.958 187.224L174.64 185.098ZM170.712 213.398L177.674 199.59L91.6514 156.217L84.6892 170.026L77.727 183.834L163.75 227.207L170.712 213.398Z"
-        fill="#0F6DE9"
-        mask="url(#path-3-outside-2_1145_10757)"
-      />
       <defs>
         <filter
           id="filter0_i_1145_10757"
