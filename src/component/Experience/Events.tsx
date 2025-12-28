@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import Experienceisibg from "../../assets/experienceisibg.png";
+import EventCarousel from "./EventCarousel";
 
 interface EventsProps extends React.SVGProps<SVGSVGElement> {
   onBack?: () => void;
@@ -44,6 +45,9 @@ const Events = (props: EventsProps) => {
     }, 150);
   };
   // --- AKHIR TAMBAHAN LOGIC ---
+
+  const [bgImage, setBgImage] = useState(Experienceisibg);
+
   return (
     <svg
       width={2644}
@@ -54,6 +58,22 @@ const Events = (props: EventsProps) => {
       style={{ pointerEvents: "none" }}
       {...props}
     >
+      <image href={Experienceisibg}
+        width="2644"
+        height="1471"
+        x="0"
+        y="0"
+        preserveAspectRatio="none"
+      />
+      <image
+        href={bgImage} 
+        width="2644"
+        height="1471"
+        x="0"
+        y="0"
+        preserveAspectRatio="xMidYMid slice" // Crop agar full cover
+        style={{ opacity: 0.6, transition: "0.5s ease-in-out" }} // Efek transisi halus
+      />
       <image
         href={Experienceisibg}
         width="2644"
@@ -61,6 +81,7 @@ const Events = (props: EventsProps) => {
         x="0"
         y="0"
         preserveAspectRatio="none"
+        style={{ mixBlendMode: 'overlay', opacity: 0.4 }} // Blend mode agar menyatu
       />
       <mask
         id="path-1-outside-1_1143_3787"
@@ -85,6 +106,15 @@ const Events = (props: EventsProps) => {
         fill="#0F6DE9"
         mask="url(#path-1-outside-1_1143_3787)"
       />
+      <foreignObject x="0" y="0" width="2644" height="900">
+        {/* div pembungkus agar bisa styling HTML biasa di dalam SVG */}
+        <div className="w-full h-full flex items-center justify-center">
+           <EventCarousel 
+              onActiveImageChange={(url) => setBgImage(url)} 
+           />
+        </div>
+      </foreignObject>
+
       <mask
         id="path-3-outside-2_1143_3787"
         maskUnits="userSpaceOnUse"
