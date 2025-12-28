@@ -46,11 +46,10 @@ const DetailExperience = (props: React.SVGProps<SVGSVGElement>) => {
     }, 150);
   };
 
-  // --- FUNGSI UNTUK KEMBALI KE MENU (Opsional, bisa di-pass ke children) ---
-  // const handleBack = () => {
-  //   playNintendoSound();
-  //   setCurrentView("menu");
-  // };
+  const handleBackToMenu = () => {
+    // Sound effect opsional jika tidak di-handle di child
+    setCurrentView("menu");
+  };
 
   // --- LOGIKA RENDER (CONDITIONAL RENDERING) ---
 
@@ -61,8 +60,12 @@ const DetailExperience = (props: React.SVGProps<SVGSVGElement>) => {
   }
 
   // 2. Jika view 'organizations', tampilkan component Organizations
+  // 2. Update bagian render Organizations:
   if (currentView === "organizations") {
-    return <Organizations width="100%" height="100%" />;
+    // PASSING PROP onBack KE SINI!
+    return (
+      <Organizations width="100%" height="100%" onBack={handleBackToMenu} />
+    );
   }
 
   // 3. Jika view 'working', tampilkan component Working

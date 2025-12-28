@@ -1,11 +1,17 @@
 import * as React from "react";
 import { useState } from "react";
-import Experienceisibg from "../../assets/experienceisibg.png";
-import Experience from "./Experience";
+import Experienceisibg from "../../assets/Experienceisibg.png"; // Pastikan casing nama file sesuai
 
-const Organizations = (props: React.SVGProps<SVGSVGElement>) => {
-  const [currentView, setCurrentView] = useState<
-      "experience" >("experience");
+// Menambahkan interface props untuk menerima fungsi navigasi dari parent
+interface OrganizationsProps extends React.SVGProps<SVGSVGElement> {
+  onBack?: () => void;
+}
+
+const Organizations = (props: OrganizationsProps) => {
+  // State untuk animasi tombol
+  const [isPressed, setIsPressed] = useState(false);
+
+  // --- AUDIO FX (Sama dengan template source) ---
   const playNintendoSound = () => {
     const AudioContext =
       window.AudioContext || (window as any).webkitAudioContext;
@@ -13,25 +19,35 @@ const Organizations = (props: React.SVGProps<SVGSVGElement>) => {
     const ctx = new AudioContext();
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
+    
+    // Gelombang triangle untuk suara retro halus
     oscillator.type = "triangle";
     oscillator.frequency.setValueAtTime(600, ctx.currentTime);
     oscillator.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.1);
+    
     gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    
     oscillator.connect(gainNode);
     gainNode.connect(ctx.destination);
     oscillator.start();
     oscillator.stop(ctx.currentTime + 0.1);
   };
 
-  // const handleNavigation = (destination: "experience") => {
-  //   playNintendoSound();
-  //   // Delay 150ms agar animasi tekan selesai, lalu ganti halaman
-  //   setTimeout(() => {
-  //     setPressedCard(null);
-  //     setCurrentView(destination); // Mengubah state view untuk me-render komponen import
-  //   }, 150);
-  // };
+  // --- HANDLER BUTTON PRESS ---
+  const handleBackNavigation = () => {
+    playNintendoSound();
+    setIsPressed(true);
+    
+    // Delay agar animasi terlihat sebelum pindah halaman
+    setTimeout(() => {
+      setIsPressed(false);
+      // Panggil fungsi navigasi dari parent (Experience.tsx)
+      if (props.onBack) {
+        props.onBack();
+      }
+    }, 150);
+  };
 
   return (
     <svg
@@ -85,7 +101,7 @@ const Organizations = (props: React.SVGProps<SVGSVGElement>) => {
         <rect fill="white" x={46.0479} y={108.047} width={154} height={129} />
         <path d="M84.6892 170.024L181.214 131.943L177.927 159.522L136.56 171.948L174.64 185.096L170.712 213.396L84.6892 170.024Z" />
       </mask>
-      <g  filter="url(#filter1_i_1145_10081)">
+      <g filter="url(#filter1_i_1145_10081)">
         <path
           d="M84.6892 170.024L181.214 131.943L177.927 159.522L136.56 171.948L174.64 185.096L170.712 213.396L84.6892 170.024Z"
           fill="#FFE460"
