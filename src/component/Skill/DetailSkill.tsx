@@ -15,9 +15,9 @@ const DetailSkill = (props: React.SVGProps<SVGSVGElement>) => {
     <image
         href={SkillBgImg}
         width="2644"
-        height="1471"
+        height="1530"
         x="0"
-        y="0"
+        y="-30"
         preserveAspectRatio="none"
       />
     <rect
