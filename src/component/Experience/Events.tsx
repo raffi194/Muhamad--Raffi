@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import Experienceisibg from "../../assets/experienceisibg.png";
+import Experienceisibg from "../../assets/Experienceisibg.png";
 import EventCarousel from "./EventCarousel";
 
 interface EventsProps extends React.SVGProps<SVGSVGElement> {
