@@ -107,24 +107,6 @@ const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
     scrollToIndex(newIndex);
   };
 
-  const handleScroll = () => {
-    if (!containerRef.current || events.length === 0) return;
-    const container = containerRef.current;
-    
-    const itemWidthEstimate = (window.innerWidth * 0.30) + 80; 
-    const centerPosition = container.scrollLeft + container.clientWidth / 2;
-    const startOffset = window.innerWidth * 0.35; 
-
-    const rawIndex = (centerPosition - startOffset) / itemWidthEstimate;
-    const index = Math.round(rawIndex);
-    const clampedIndex = Math.max(0, Math.min(index, events.length - 1));
-
-    if (clampedIndex !== activeIndex) {
-      setActiveIndex(clampedIndex);
-      playSwitchSound();
-    }
-  };
-
   const handleWheel = (e: React.WheelEvent) => {
     if (Math.abs(e.deltaY) > 20) { 
         if (e.deltaY > 0) scrollContainer('right');
