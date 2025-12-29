@@ -13,7 +13,8 @@ const Events = (props: EventsProps) => {
 
   const playNintendoSound = () => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContext =
+        window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContext) return;
       const ctx = new AudioContext();
       const oscillator = ctx.createOscillator();
@@ -58,7 +59,8 @@ const Events = (props: EventsProps) => {
       style={{ pointerEvents: "none" }}
       {...props}
     >
-      <image href={Experienceisibg}
+      <image
+        href={Experienceisibg}
         width="2644"
         height="1471"
         x="0"
@@ -66,7 +68,7 @@ const Events = (props: EventsProps) => {
         preserveAspectRatio="none"
       />
       <image
-        href={bgImage} 
+        href={bgImage}
         width="2644"
         height="1471"
         x="0"
@@ -81,7 +83,7 @@ const Events = (props: EventsProps) => {
         x="0"
         y="0"
         preserveAspectRatio="none"
-        style={{ mixBlendMode: 'overlay', opacity: 0.4 }} // Blend mode agar menyatu
+        style={{ mixBlendMode: "overlay", opacity: 0.4 }} // Blend mode agar menyatu
       />
       <mask
         id="path-1-outside-1_1143_3787"
@@ -106,12 +108,17 @@ const Events = (props: EventsProps) => {
         fill="#0F6DE9"
         mask="url(#path-1-outside-1_1143_3787)"
       />
-      <foreignObject x="0" y="0" width="2644" height="900">
-        {/* div pembungkus agar bisa styling HTML biasa di dalam SVG */}
+      {/* 2. AREA CAROUSEL INTERAKTIF */}
+      {/* UPDATE: Posisi lebih atas (y=140) dan area lebih tinggi (height=1200) */}
+      <foreignObject
+        x="0"
+        y="-150" 
+        width="2644"
+        height="1471"
+        style={{ pointerEvents: "all" }}
+      >
         <div className="w-full h-full flex items-center justify-center">
-           <EventCarousel 
-              onActiveImageChange={(url) => setBgImage(url)} 
-           />
+          <EventCarousel onActiveImageChange={(url) => setBgImage(url)} />
         </div>
       </foreignObject>
 

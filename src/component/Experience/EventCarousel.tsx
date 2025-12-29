@@ -1,45 +1,16 @@
 import * as React from "react";
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { supabase } from "../../lib/supabaseClient"; // Pastikan path import ini sesuai struktur folder Anda
 
-// --- DATA DUMMY EVENT ---
-const EVENTS_DATA = [
-  {
-    id: 1,
-    title: "Hackathon 2024",
-    role: "Fullstack Dev",
-    image: "https://images.unsplash.com/photo-1504384308090-c54be3855833?q=80&w=2562&auto=format&fit=crop",
-    desc: "Juara 1 kategori Smart City",
-  },
-  {
-    id: 2,
-    title: "Tech Seminar",
-    role: "Speaker",
-    image: "https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=2670&auto=format&fit=crop",
-    desc: "Membawakan materi React Three Fiber",
-  },
-  {
-    id: 3,
-    title: "Community Meetup",
-    role: "Participant",
-    image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=2670&auto=format&fit=crop",
-    desc: "Networking dengan developer lokal",
-  },
-  {
-    id: 4,
-    title: "Game Dev Jam",
-    role: "Designer",
-    image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=2670&auto=format&fit=crop",
-    desc: "Membuat game 8-bit dalam 48 jam",
-  },
-  {
-    id: 5,
-    title: "Open Source Contrib",
-    role: "Contributor",
-    image: "https://images.unsplash.com/photo-1607799275518-d58665d48862?q=80&w=2670&auto=format&fit=crop",
-    desc: "Pull Request merged ke repository besar",
-  },
-];
+// --- TIPE DATA DARI DATABASE ---
+interface EventData {
+  id: number;
+  title: string;
+  role: string;
+  image: string;
+  desc: string;
+}
 
 interface EventCarouselProps {
   onActiveImageChange: (imageUrl: string) => void;
@@ -47,12 +18,43 @@ interface EventCarouselProps {
 
 const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   
-  // State untuk Drag Logic
+  // --- STATE MANAGEMENT ---
+  const [events, setEvents] = useState<EventData[]>([]); // Data dinamis
+  const [loading, setLoading] = useState(true); // Indikator loading
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // State Drag
   const [isDown, setIsDown] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [dragDistance, setDragDistance] = useState(0);
+
+  // --- FETCH DATA DARI SUPABASE ---
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        // Mengambil data dari tabel 'events' dan mengurutkannya berdasarkan ID
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .order('id', { ascending: true });
+
+        if (error) throw error;
+
+        if (data) {
+          setEvents(data);
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data event:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   // --- AUDIO EFFECT ---
   const playSwitchSound = () => {
@@ -72,29 +74,50 @@ const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
       osc.start();
       osc.stop(ctx.currentTime + 0.05);
     } catch (e) {
-      console.error(e);
+      // ignore
     }
   };
 
-  // --- LOGIC SCROLL & ACTIVE CARD ---
+  // --- HELPER: GET CARD WIDTH + GAP ---
+  const getItemWidth = () => {
+    return (window.innerWidth * 0.30) + 80; 
+  };
+
+  // --- SCROLL LOGIC ---
+  const scrollToIndex = (index: number) => {
+    if (!containerRef.current || events.length === 0) return;
+    
+    // Gunakan events.length bukan EVENTS_DATA.length
+    const targetIndex = Math.max(0, Math.min(index, events.length - 1));
+    const itemWidth = getItemWidth();
+    
+    containerRef.current.scrollTo({
+      left: targetIndex * itemWidth,
+      behavior: 'smooth'
+    });
+
+    if (targetIndex !== activeIndex) {
+      setActiveIndex(targetIndex);
+      playSwitchSound();
+    }
+  };
+
+  const scrollContainer = (direction: 'left' | 'right') => {
+    const newIndex = direction === 'left' ? activeIndex - 1 : activeIndex + 1;
+    scrollToIndex(newIndex);
+  };
+
   const handleScroll = () => {
-    if (!containerRef.current) return;
-
+    if (!containerRef.current || events.length === 0) return;
     const container = containerRef.current;
-    const currentScrollLeft = container.scrollLeft;
-    const containerWidth = container.clientWidth;
-    // Lebar kartu sekitar 50vw + gap 4rem (64px)
-    // Kita estimasi lebar item + gap untuk perhitungan index
-    const estimatedItemWidth = (window.innerWidth * 0.5) + 64; 
+    
+    const itemWidthEstimate = (window.innerWidth * 0.30) + 80; 
+    const centerPosition = container.scrollLeft + container.clientWidth / 2;
+    const startOffset = window.innerWidth * 0.35; 
 
-    const centerPosition = currentScrollLeft + containerWidth / 2;
-    // Offset agar perhitungan dimulai dari tengah item pertama
-    // Sesuaikan offset ini jika index meleset
-    const startOffset = window.innerWidth * 0.25; 
-
-    const rawIndex = (centerPosition - startOffset) / estimatedItemWidth;
-    const index = Math.round(rawIndex - 0.5);
-    const clampedIndex = Math.max(0, Math.min(index, EVENTS_DATA.length - 1));
+    const rawIndex = (centerPosition - startOffset) / itemWidthEstimate;
+    const index = Math.round(rawIndex);
+    const clampedIndex = Math.max(0, Math.min(index, events.length - 1));
 
     if (clampedIndex !== activeIndex) {
       setActiveIndex(clampedIndex);
@@ -102,56 +125,152 @@ const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
     }
   };
 
-  // --- UPDATE BACKGROUND ---
+  const handleWheel = (e: React.WheelEvent) => {
+    if (Math.abs(e.deltaY) > 20) { 
+        if (e.deltaY > 0) scrollContainer('right');
+        else scrollContainer('left');
+    }
+  };
+
+  // Update Background Image saat activeIndex berubah
   useEffect(() => {
-    const imageUrl = EVENTS_DATA[activeIndex].image;
-    onActiveImageChange(imageUrl);
-  }, [activeIndex, onActiveImageChange]);
+    if (events.length > 0 && events[activeIndex]) {
+        const imageUrl = events[activeIndex].image;
+        onActiveImageChange(imageUrl);
+    }
+  }, [activeIndex, onActiveImageChange, events]);
 
-
-  // --- DRAG TO SCROLL HANDLERS ---
+  // --- DRAG HANDLERS ---
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
     setIsDown(true);
     setStartX(e.pageX - containerRef.current.offsetLeft);
     setScrollLeft(containerRef.current.scrollLeft);
-  };
-
-  const handleMouseLeave = () => {
-    setIsDown(false);
-  };
-
-  const handleMouseUp = () => {
-    setIsDown(false);
+    setDragDistance(0); 
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDown || !containerRef.current) return;
     e.preventDefault();
     const x = e.pageX - containerRef.current.offsetLeft;
-    const walk = (x - startX) * 2; // Kecepatan scroll (dikali 2 biar lebih cepat)
+    const walk = (x - startX) * 1.5; 
+    setDragDistance(walk); 
     containerRef.current.scrollLeft = scrollLeft - walk;
   };
 
+  const handleMouseUp = () => {
+    setIsDown(false);
+    const threshold = 50; 
+    if (dragDistance < -threshold) {
+        scrollToIndex(activeIndex + 1); 
+    } else if (dragDistance > threshold) {
+        scrollToIndex(activeIndex - 1); 
+    } else {
+        scrollToIndex(activeIndex); 
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDown) handleMouseUp();
+  };
+
+  // --- LOADING VIEW ---
+  // Tampilkan spinner saat data sedang diambil
+  if (loading) {
+      return (
+          <div className="flex h-screen w-full items-center justify-center pointer-events-none">
+             <div className="h-12 w-12 animate-spin rounded-full border-4 border-yellow-400 border-t-transparent"></div>
+          </div>
+      );
+  }
+
+  // Jika data kosong setelah loading selesai
+  if (events.length === 0) {
+      return (
+          <div className="flex h-screen w-full items-center justify-center text-white pointer-events-none">
+              <p>Belum ada event yang ditambahkan.</p>
+          </div>
+      );
+  }
+
+  // Ambil data aktif dari state 'events'
+  const activeEvent = events[activeIndex];
+
   return (
     <>
-      {/* CSS KHUSUS UNTUK HIDE SCROLLBAR */}
       <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="relative w-full h-full flex items-center">
-        {/* Container Scroll Snap Horizontal */}
+      {/* WRAPPER UTAMA */}
+      <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-auto">
+        
+        {/* === INFO TEXT PANEL (POJOK KIRI BAWAH) === */}
+        <div className="absolute bottom-10 left-8 md:bottom-5 md:left-16 z-40 max-w-full md:max-w-full text-left pointer-events-none">
+            {/* Pastikan activeEvent ada sebelum merender isinya */}
+            {activeEvent && (
+                <motion.div
+                    key={activeEvent.id} 
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, type: "spring" }}
+                    className="flex flex-col items-start space-y-4"
+                >
+                    {/* JUDUL */}
+                    <h1 className="text-6xl md:text-8xl font-black font-sans text-yellow-400 drop-shadow-[0_5px_5px_rgba(0,0,0,1)] uppercase leading-none tracking-tighter">
+                        {activeEvent.title}
+                    </h1>
+
+                    {/* ROLE BADGE */}
+                    <div className="px-6 py-2 bg-blue-600/90 backdrop-blur-md rounded-lg border-l-4 border-white shadow-lg">
+                        <span className="text-4xl md:text-5xl text-white font-bold tracking-widest uppercase">
+                            {activeEvent.role}
+                        </span>
+                    </div>
+
+                    {/* DESKRIPSI */}
+                    <p className="text-2xl md:text-3xl text-gray-100 font-medium bg-black/60 p-4 rounded-xl border border-white/10 backdrop-blur-sm max-w-full shadow-xl">
+                        {activeEvent.desc}
+                    </p>
+                </motion.div>
+            )}
+        </div>
+
+        {/* ARROW LEFT */}
+        <button 
+            onClick={() => scrollContainer('left')}
+            className={`
+                absolute left-4 z-50 p-6 rounded-full 
+                bg-black/40 hover:bg-yellow-400/90 hover:text-black text-white 
+                transition-all backdrop-blur-sm border-2 border-white/20 group cursor-pointer
+                ${activeIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'}
+            `}
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4} stroke="currentColor" className="w-8 h-8 group-hover:scale-110 transition-transform">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+        </button>
+
+        {/* ARROW RIGHT */}
+        <button 
+            onClick={() => scrollContainer('right')}
+            className={`
+                absolute right-4 z-50 p-6 rounded-full 
+                bg-black/40 hover:bg-yellow-400/90 hover:text-black text-white 
+                transition-all backdrop-blur-sm border-2 border-white/20 group cursor-pointer
+                ${activeIndex === events.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}
+            `}
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4} stroke="currentColor" className="w-8 h-8 group-hover:scale-110 transition-transform">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+        </button>
+
+        {/* CONTAINER SCROLL */}
         <div
           ref={containerRef}
-          onScroll={handleScroll}
-          // Drag Events
+          onWheel={handleWheel}
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
@@ -161,82 +280,57 @@ const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
             hide-scrollbar
             flex 
             w-full 
-            h-[70%] 
+            h-full
             overflow-x-auto 
-            snap-x 
-            snap-mandatory 
             items-center
-            px-[25vw] /* Padding Kiri-Kanan Besar agar item pertama ditengah */
-            
-            /* JARAK ANTAR ITEM DIPERBESAR DISINI */
-            gap-16 md:gap-24 
-            
-            ${isDown ? 'cursor-grabbing snap-none' : 'cursor-grab snap-mandatory'}
+            px-[35vw] 
+            gap-20
+            ${isDown ? 'cursor-grabbing' : 'cursor-grab'}
           `}
-          style={{ scrollBehavior: isDown ? 'auto' : 'smooth' }}
+          style={{ scrollBehavior: 'auto' }} 
         >
-          {EVENTS_DATA.map((event, index) => {
+          {events.map((event, index) => {
             const isActive = index === activeIndex;
 
             return (
               <motion.div
                 key={event.id}
-                className={`
-                  relative 
-                  shrink-0 
-                  w-[50vw] md:w-[40vw] /* Ukuran kartu */
-                  aspect-video 
-                  rounded-2xl 
-                  overflow-hidden 
-                  snap-center
-                  shadow-2xl
-                  select-none /* Agar teks/gambar tidak ke-highlight saat drag */
-                  bg-gray-900
-                  transition-all duration-300
-                  ${isActive ? 'border-4 border-yellow-400 z-10 shadow-yellow-500/50' : 'border-2 border-white/20 z-0 opacity-40 blur-[2px] scale-90 grayscale'}
-                `}
-                // Animasi Framer Motion untuk Scale yang lebih responsif
+                className="relative flex-shrink-0 flex flex-col items-center justify-center pointer-events-none"
                 animate={{
-                  scale: isActive ? 1.1 : 0.85,
-                  rotateY: isActive ? 0 : index < activeIndex ? 15 : -15, // Efek 3D sedikit
+                  scale: isActive ? 1.05 : 0.85, 
+                  opacity: isActive ? 1 : 0.3, 
+                  y: isActive ? 50 : 0, 
+                  rotateY: isActive ? 0 : index < activeIndex ? 35 : -35,
                 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                transition={{ type: "spring", stiffness: 180, damping: 20 }}
               >
-                {/* Gambar Event */}
-                <img
-                  src={event.image}
-                  alt={event.title}
-                  className="w-full h-full object-cover pointer-events-none" // pointer-events-none penting agar drag lancar
-                />
-
-                {/* Overlay Info */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 20 }}
-                  transition={{ delay: 0.1 }}
-                  className="absolute bottom-0 left-0 w-full bg-linear-to-t from-black/90 via-black/60 to-transparent p-6 text-white text-left"
-                >
-                  <h3 className="text-2xl md:text-3xl font-bold font-sans text-yellow-400 drop-shadow-md">
-                    {event.title}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="bg-blue-600 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">
-                      {event.role}
-                    </span>
-                  </div>
-                  <p className="text-sm md:text-base text-gray-300 mt-2 line-clamp-2">
-                    {event.desc}
-                  </p>
-                </motion.div>
+                {/* === GAMBAR CARD TOWER === */}
+                <div className={`
+                    w-[75vw] md:w-[45vw] 
+                    h-[105vh] 
+                    rounded-[3rem] 
+                    overflow-hidden 
+                    shadow-[0_25px_60px_rgba(0,0,0,0.6)]
+                    border-[6px]
+                    bg-gray-800
+                    transition-all duration-300
+                    pointer-events-auto 
+                    select-none
+                    ${isActive ? 'border-yellow-400 shadow-yellow-500/40' : 'border-gray-600 grayscale'}
+                `}>
+                  <img
+                    src={event.image}
+                    alt={event.title}
+                    className="w-full h-full object-cover pointer-events-none"
+                    // Fallback jika URL gambar rusak
+                    onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://placehold.co/600x800?text=No+Image";
+                    }}
+                  />
+                </div>
               </motion.div>
             );
           })}
-        </div>
-        
-        {/* Indikator Panah Kiri/Kanan (Opsional, untuk memberi tahu user bisa scroll) */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 pointer-events-none opacity-50">
-            <div className="text-white text-4xl animate-pulse">‹</div>
-            <div className="text-white text-4xl animate-pulse">›</div>
         </div>
       </div>
     </>

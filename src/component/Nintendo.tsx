@@ -1145,6 +1145,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
       >
         <circle cx={130.775} cy={277.593} r={19.4945} fill="#D9D9D9" />
       </mask>
+      {/* Button Right */}
       <g mask="url(#mask19_974_13840)">
         <g filter="url(#filter64_f_974_13840)">
           <circle
@@ -1226,6 +1227,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
       >
         <circle cx={50.3618} cy={277.594} r={19.4945} fill="#D9D9D9" />
       </mask>
+      {/* Button Left */}
       <g mask="url(#mask21_974_13840)">
         <g filter="url(#filter70_f_974_13840)">
           <circle
