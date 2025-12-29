@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import Experienceisibg from "../../assets/experienceisibg.png";
+import Experienceisibg from "../../assets/Experienceisibg.png";
 
 interface EventsProps extends React.SVGProps<SVGSVGElement> {
   onBack?: () => void;
