@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import Experienceisibg from "../../assets/Experienceisibg.png";
+import OrganizationsCarousel from "./OrganizationsCarousel";
 
 // Interface props
 interface OrganizationsProps extends React.SVGProps<SVGSVGElement> {
@@ -9,6 +10,7 @@ interface OrganizationsProps extends React.SVGProps<SVGSVGElement> {
 
 const Organizations = (props: OrganizationsProps) => {
   // State untuk animasi tombol
+  const [bgImage, setBgImage] = useState<string>("");
   const [isPressed, setIsPressed] = useState(false);
 
   // --- AUDIO FX ---
@@ -107,6 +109,20 @@ const Organizations = (props: OrganizationsProps) => {
           fill="#FFE460"
         />
       </g>
+
+      <foreignObject
+          x="0"
+          y="-150" 
+          width="2644"
+          height="1471"
+          style={{ pointerEvents: "all" }} // Penting: Agar bisa di-klik/drag
+        >
+          <div className="w-full h-full flex items-center justify-center">
+            {/* Memanggil Komponen OrganizationsCarousel */}
+            <OrganizationsCarousel onActiveImageChange={(url) => setBgImage(url)} />
+          </div>
+        </foreignObject>
+        
       {/* === TOMBOL BACK INTERAKTIF === */}
       {/* Pastikan mask ID unik atau sesuai */}
       <mask

@@ -1,18 +1,20 @@
 import * as React from "react";
 import { useState } from "react";
 import Experienceisibg from "../../assets/Experienceisibg.png";
+import WorkingCarousel from "./WorkingCarousel";
 
 interface EventsProps extends React.SVGProps<SVGSVGElement> {
   onBack?: () => void;
 }
 
 const Working = (props: EventsProps) => {
-
-const [isPressed, setIsPressed] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+  const [bgImage, setBgImage] = useState<string>("");
 
   const playNintendoSound = () => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContext =
+        window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContext) return;
       const ctx = new AudioContext();
       const oscillator = ctx.createOscillator();
@@ -43,7 +45,7 @@ const [isPressed, setIsPressed] = useState(false);
       if (props.onBack) props.onBack();
     }, 150);
   };
-  
+
   return (
     <svg
       width={2644}
@@ -85,6 +87,21 @@ const [isPressed, setIsPressed] = useState(false);
         fill="#0F6DE9"
         mask="url(#path-1-outside-1_1145_10757)"
       />
+
+      <foreignObject
+        x="0"
+        y="-150"
+        width="2644"
+        height="1471"
+        style={{ pointerEvents: "all" }} // Penting: agar interaksi mouse (scroll/drag) di carousel berfungsi
+      >
+        <div className="w-full h-full flex items-center justify-center">
+          {/* Memanggil Component WorkingCarousel */}
+          {/* Props onActiveImageChange mengirim data gambar balik ke sini */}
+          <WorkingCarousel onActiveImageChange={(url) => setBgImage(url)} />
+        </div>
+      </foreignObject>
+
       <mask
         id="path-3-outside-2_1145_10757"
         maskUnits="userSpaceOnUse"
