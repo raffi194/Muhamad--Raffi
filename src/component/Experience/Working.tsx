@@ -9,7 +9,6 @@ interface EventsProps extends React.SVGProps<SVGSVGElement> {
 
 const Working = (props: EventsProps) => {
   const [isPressed, setIsPressed] = useState(false);
-  const [bgImage, setBgImage] = useState<string>("");
 
   const playNintendoSound = () => {
     try {
@@ -98,7 +97,7 @@ const Working = (props: EventsProps) => {
         <div className="w-full h-full flex items-center justify-center">
           {/* Memanggil Component WorkingCarousel */}
           {/* Props onActiveImageChange mengirim data gambar balik ke sini */}
-          <WorkingCarousel onActiveImageChange={(url) => setBgImage(url)} />
+          <WorkingCarousel onActiveImageChange={() => {}} />
         </div>
       </foreignObject>
 
