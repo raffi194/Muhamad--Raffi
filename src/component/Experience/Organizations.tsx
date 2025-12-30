@@ -11,7 +11,6 @@ interface OrganizationsProps extends React.SVGProps<SVGSVGElement> {
 const Organizations = (props: OrganizationsProps) => {
   // State untuk animasi tombol
   const [isPressed, setIsPressed] = useState(false);
-  const [bgImage, setBgImage] = useState<string>("");
 
   // --- AUDIO FX ---
   const playNintendoSound = () => {
@@ -119,7 +118,7 @@ const Organizations = (props: OrganizationsProps) => {
         >
           <div className="w-full h-full flex items-center justify-center">
             {/* Memanggil Komponen OrganizationsCarousel */}
-            <OrganizationsCarousel onActiveImageChange={(url) => setBgImage(url)} />
+            <OrganizationsCarousel onActiveImageChange={() => {}} />
           </div>
         </foreignObject>
 
