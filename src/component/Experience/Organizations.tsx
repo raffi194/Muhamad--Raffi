@@ -10,8 +10,8 @@ interface OrganizationsProps extends React.SVGProps<SVGSVGElement> {
 
 const Organizations = (props: OrganizationsProps) => {
   // State untuk animasi tombol
-  const [bgImage, setBgImage] = useState<string>("");
   const [isPressed, setIsPressed] = useState(false);
+  const [bgImage, setBgImage] = useState<string>("");
 
   // --- AUDIO FX ---
   const playNintendoSound = () => {
@@ -122,7 +122,7 @@ const Organizations = (props: OrganizationsProps) => {
             <OrganizationsCarousel onActiveImageChange={(url) => setBgImage(url)} />
           </div>
         </foreignObject>
-        
+
       {/* === TOMBOL BACK INTERAKTIF === */}
       {/* Pastikan mask ID unik atau sesuai */}
       <mask
