@@ -93,80 +93,88 @@ const Contactme = () => {
 
         {/* --- SECTION KANAN (Formulir Kontak) --- */}
         <div className="h-full flex flex-col justify-center">
-          <div className="bg-[#1a1a1a]/60 backdrop-blur-md border border-[#F7F8E6]/20 rounded-2xl p-6 shadow-2xl">
-            <h3 className="text-sm font-bold text-[#F7F8E6] mb-5 flex items-center gap-2 uppercase tracking-wider border-b border-[#F7F8E6]/10 pb-3">
-              <Send size={16} className="text-[#8A7B66]" />
-              Send Transmission
+          {/* Card Container */}
+          {/* Mengubah shadow menjadi warna taupe/krem gelap agar senada dengan border #8A7B66 */}
+          <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-[8px_8px_0_#b8b0a4] border-4 border-[#8A7B66]">
+            {/* Header Form */}
+            <h3 className="flex items-center gap-2 mb-5 text-[#8A7B66] font-bold uppercase tracking-widest text-xs border-b-2 border-dashed border-[#8A7B66] pb-3">
+              <Send size={16} />
+              <span>Send Transmission</span>
             </h3>
 
             <form ref={form} className="space-y-3" onSubmit={sendEmail}>
               {/* Input Name */}
               <div className="relative group">
-                <User
-                  size={14}
-                  className="absolute left-3 top-3 text-gray-400 group-focus-within:text-[#8A7B66] transition-colors"
-                />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8A7B66] group-focus-within:text-[#8A7B66] transition-colors">
+                  <User size={16} />
+                </div>
                 <input
                   type="text"
-                  name="user_name" // WAJIB ADA: Sesuai {{user_name}} di EmailJS
+                  name="user_name" // WAJIB ADA
                   required
-                  placeholder="Player Name"
-                  className="w-full bg-black/40 border border-[#F7F8E6]/20 rounded-lg py-2.5 pl-9 pr-3 text-xs text-[#F7F8E6] placeholder-gray-500 focus:outline-none focus:border-[#8A7B66] focus:ring-1 focus:ring-[#8A7B66] transition-all"
+                  placeholder="Villager Name"
+                  className="w-full bg-[#fbfbf9] border-2 border-[#e6e2d6] text-[#5d5345] text-xs rounded-2xl pl-10 pr-4 py-3 placeholder-[#b5afa3] focus:outline-none focus:border-[#8A7B66] focus:ring-4 focus:ring-[#8A7B66]/20 transition-all font-bold"
                 />
               </div>
 
               {/* Input Email */}
               <div className="relative group">
-                <Mail
-                  size={14}
-                  className="absolute left-3 top-3 text-gray-400 group-focus-within:text-[#8A7B66] transition-colors"
-                />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8A7B66] group-focus-within:text-[#8A7B66] transition-colors">
+                  <Mail size={16} />
+                </div>
                 <input
                   type="email"
-                  name="user_email" // WAJIB ADA: Sesuai {{user_email}} di EmailJS
+                  name="user_email" // WAJIB ADA
                   required
-                  placeholder="Email Address"
-                  className="w-full bg-black/40 border border-[#F7F8E6]/20 rounded-lg py-2.5 pl-9 pr-3 text-xs text-[#F7F8E6] placeholder-gray-500 focus:outline-none focus:border-[#8A7B66] focus:ring-1 focus:ring-[#8A7B66] transition-all"
+                  placeholder="NookPhone / Email"
+                  className="w-full bg-[#fbfbf9] border-2 border-[#e6e2d6] text-[#5d5345] text-xs rounded-2xl pl-10 pr-4 py-3 placeholder-[#b5afa3] focus:outline-none focus:border-[#8A7B66] focus:ring-4 focus:ring-[#8A7B66]/20 transition-all font-bold"
                 />
               </div>
 
               {/* Input Subject */}
               <div className="relative group">
-                <FileText
-                  size={14}
-                  className="absolute left-3 top-3 text-gray-400 group-focus-within:text-[#8A7B66] transition-colors"
-                />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8A7B66] group-focus-within:text-[#8A7B66] transition-colors">
+                  <FileText size={16} />
+                </div>
                 <input
                   type="text"
-                  name="subject" // WAJIB ADA: Sesuai {{subject}} di EmailJS
+                  name="subject" // WAJIB ADA
                   required
                   placeholder="Subject"
-                  className="w-full bg-black/40 border border-[#F7F8E6]/20 rounded-lg py-2.5 pl-9 pr-3 text-xs text-[#F7F8E6] placeholder-gray-500 focus:outline-none focus:border-[#8A7B66] focus:ring-1 focus:ring-[#8A7B66] transition-all"
+                  className="w-full bg-[#fbfbf9] border-2 border-[#e6e2d6] text-[#5d5345] text-xs rounded-2xl pl-10 pr-4 py-3 placeholder-[#b5afa3] focus:outline-none focus:border-[#8A7B66] focus:ring-4 focus:ring-[#8A7B66]/20 transition-all font-bold"
                 />
               </div>
 
               {/* Textarea */}
-              <textarea
-                rows={3}
-                name="message" // WAJIB ADA: Sesuai {{message}} di EmailJS
-                required
-                placeholder="Type your message here..."
-                className="w-full bg-black/40 border border-[#F7F8E6]/20 rounded-lg p-3 text-xs text-[#F7F8E6] placeholder-gray-500 focus:outline-none focus:border-[#8A7B66] focus:ring-1 focus:ring-[#8A7B66] transition-all resize-none"
-              ></textarea>
+              <div className="relative">
+                <textarea
+                  rows={3}
+                  name="message" // WAJIB ADA
+                  required
+                  placeholder="Write something nice..."
+                  className="w-full bg-[#fbfbf9] border-2 border-[#e6e2d6] text-[#5d5345] text-xs rounded-2xl p-3 placeholder-[#b5afa3] focus:outline-none focus:border-[#8A7B66] focus:ring-4 focus:ring-[#8A7B66]/20 transition-all resize-none font-bold leading-relaxed"
+                ></textarea>
+              </div>
 
-              {/* Submit Button */}
+              {/* Submit Button - Style Tombol Dialog 3D (Warna Dasar #8A7B66) */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#8A7B66] hover:bg-[#7a6d5a] disabled:bg-gray-600 disabled:cursor-not-allowed text-[#F7F8E6] font-bold py-3 rounded-lg text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 mt-2"
+                className="w-full bg-[#8A7B66] hover:bg-[#6e6251] text-white font-black text-sm py-3 rounded-full shadow-[0_4px_0_#544b3d] active:shadow-none active:translate-y-1 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-wider group mt-2"
               >
                 {isLoading ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    Sending...
+                    <span>Sending...</span>
                   </>
                 ) : (
-                  "Send Message"
+                  <>
+                    <span>Send It!</span>
+                    <Send
+                      size={16}
+                      className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                    />
+                  </>
                 )}
               </button>
             </form>

@@ -274,7 +274,7 @@ const WorkingCarousel = ({ onActiveImageChange }: WorkingCarouselProps) => {
             return (
               <motion.div
                 key={item.id}
-                className="relative flex-shrink-0 flex flex-col items-center justify-center pointer-events-none"
+                className="relative shrink-0 flex flex-col items-center justify-center pointer-events-none"
                 animate={{
                   scale: isActive ? 1.05 : 0.85, 
                   opacity: isActive ? 1 : 0.3, 
