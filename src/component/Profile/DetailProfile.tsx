@@ -1,39 +1,46 @@
+import { useState } from "react";
 import ProfileName from "./ProfileName";
 import ButtonsAction from "./ButtonsAction";
 import StatusLevel from "./StatusLevel";
 import Stats from "./Stats";
 import About from "./About";
+import Certificates from "./Certificates";
 
 const DetailProfile = () => {
+  // 1. STATE UNTUK MENGATUR TAMPILAN (Navigasi)
+  // 'main' = Tampilan Profil Biasa
+  // 'certificates' = Tampilan Halaman Sertifikat (World 1-2)
+  const [currentView, setCurrentView] = useState<'main' | 'certificates'>('main');
+
+  // 2. LOGIKA PERPINDAHAN HALAMAN
+  // Jika state 'currentView' adalah 'certificates', maka tampilkan komponen Certificates
+  if (currentView === 'certificates') {
+    return <Certificates onBack={() => setCurrentView('main')} />;
+  }
+
+  // 3. TAMPILAN UTAMA (Profil Overworld)
   return (
-    // 1. Container Utama: Fixed Height (h-full) & Background Biru Langit
     <div className="relative w-full h-full bg-[#6b8cff] overflow-hidden font-mono selection:bg-yellow-400 selection:text-black">
       
-      {/* --- BACKGROUND DECORATION (Awan) --- */}
-      {/* Awan CSS */}
+      {/* --- BACKGROUND DECORATION (Awan & Lantai) --- */}
       <div className="absolute top-10 left-10 w-24 h-8 bg-white/80 rounded-full blur-sm opacity-50" />
       <div className="absolute top-20 right-20 w-32 h-10 bg-white/80 rounded-full blur-sm opacity-60" />
       <div className="absolute top-1/2 left-1/4 w-16 h-6 bg-white/80 rounded-full blur-sm opacity-40" />
       
-      {/* --- LANTAI MARIO (PENGGANTI GAMBAR YANG RUSAK) --- */}
-      {/* Kita gunakan CSS Pattern agar tidak perlu load gambar eksternal lagi */}
+      {/* Lantai Mario */}
       <div className="absolute bottom-0 w-full h-16 bg-[#c25934] border-t-4 border-black pointer-events-none z-0">
-          {/* Pola Bata (Brick Pattern) menggunakan CSS Gradient */}
           <div className="absolute inset-0 opacity-30 bg-[linear-gradient(335deg,rgba(0,0,0,0.3)_2px,transparent_2px),linear-gradient(155deg,rgba(0,0,0,0.3)_2px,transparent_2px)] bg-size-[24px_24px]" />
-          {/* Strip Rumput Hijau di bagian atas bata */}
           <div className="absolute top-0 left-0 w-full h-3 bg-[#43b047] border-b-4 border-black/20" />
       </div>
 
       {/* --- SCROLLABLE AREA --- */}
       <div className="relative z-10 w-full h-full overflow-y-auto nintendo-scroll">
-        
-        {/* Wrapper Konten: Padding bawah besar (pb-32) agar tidak tertutup lantai */}
         <div className="min-h-full w-full flex flex-col items-center justify-start p-4 md:p-8 pb-32">
         
-            {/* FRAME PUTIH RETRO (KARTU UTAMA) */}
+            {/* FRAME PUTIH RETRO */}
             <div className="w-full max-w-4xl bg-[#f8f9fa] border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,0.4)] rounded-xl relative overflow-hidden shrink-0">
                 
-                {/* HEADER MERAH (Papan Judul) */}
+                {/* HEADER MERAH */}
                 <div className="bg-[#e52521] p-2 border-b-4 border-black flex justify-between items-center px-4 sticky top-0 z-20">
                     <div className="flex gap-2">
                         <div className="w-3 h-3 rounded-full bg-yellow-400 border border-black animate-pulse"/>
@@ -45,20 +52,23 @@ const DetailProfile = () => {
                     </span>
                 </div>
 
-                <div className="p-6 md:p-10 flex flex-col gap-10">
-                    {/* 1. BAGIAN ATAS: Identitas & Level */}
-                    <div className="flex flex-col xl:flex-row justify-between items-center gap-8 border-b-4 border-dashed border-gray-300 pb-8">
-                        <ProfileName />
+                <div className="p-6 flex flex-col gap-10">
+                    {/* BAGIAN ATAS */}
+                    <div className="flex flex-row justify-between items-center border-b-4 border-dashed border-gray-300 pb-8">
+                        <div className="flex flex-row items-center w-fit">
+                            <ProfileName />
+                        </div>
                         
-                        <div className="flex flex-col items-center xl:items-end gap-4 w-full xl:w-auto">
+                        <div className="flex flex-col items-end gap-4 ">
                             <StatusLevel />
                             <div className="mt-2">
-                                <ButtonsAction />
+                                {/* PENTING: Di sini kita mengirim fungsi navigasi ke ButtonsAction */}
+                                <ButtonsAction onOpenCertificates={() => setCurrentView('certificates')} />
                             </div>
                         </div>
                     </div>
 
-                    {/* 2. BAGIAN TENGAH: Statistik (Blok ?) */}
+                    {/* STATS */}
                     <div className="w-full">
                         <h3 className="text-xl font-black uppercase mb-4 text-[#e52521] drop-shadow-[1px_1px_0px_black] flex items-center gap-2">
                             <span className="">⭐</span> Player Stats
@@ -66,19 +76,17 @@ const DetailProfile = () => {
                         <Stats />
                     </div>
 
-                    {/* 3. BAGIAN BAWAH: Info (Papan Tulis) */}
+                    {/* ABOUT */}
                     <div className="w-full">
                         <About />
                     </div>
                 </div>
                 
-                {/* Hiasan Pipa Hijau Kecil di Pojok Bawah */}
                 <div className="absolute -bottom-10 -right-5 w-24 h-24 bg-[#43b047] border-4 border-black rotate-12 pointer-events-none" />
             </div>
 
-            {/* Credit / Footer Kecil di bawah Scroll */}
             <div className="mt-8 text-white/60 text-xs font-bold uppercase tracking-widest bg-black/20 px-4 py-1 rounded-full backdrop-blur-sm">
-                © 2025 Muhamad Raffi Portfolio Edition
+                © 2025 Mario Portfolio Edition
             </div>
         </div>
       </div>
