@@ -1,30 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Award, FileUser, Download, X } from "lucide-react";
-import CvFile from "../../assets/CV.pdf";
+import { supabase } from "../../lib/supabaseClient";
 
-// Definisikan Props agar parent bisa mengoper fungsi
 interface ButtonsActionProps {
   onOpenCertificates?: () => void;
 }
 
 const ButtonsAction = ({ onOpenCertificates }: ButtonsActionProps) => {
   const [showCV, setShowCV] = useState(false);
+  const [cvUrl, setCvUrl] = useState<string | null>(null);
+  const [loadingCv, setLoadingCv] = useState(false);
 
-  // --- AUDIO EFFECT 1: COIN SOUND (Untuk Tombol Certificates) ---
+  // --- FETCH CV URL DARI SUPABASE ---
+  useEffect(() => {
+    const fetchCvUrl = async () => {
+      try {
+        setLoadingCv(true);
+        // Mengambil CV id 1
+        const { data, error } = await supabase
+          .from('cv_config')
+          .select('cv_url')
+          .eq('id', 1)
+          .single();
+          
+        if (!error && data) {
+          setCvUrl(data.cv_url);
+        }
+      } catch (error) {
+        console.error("Error fetching CV:", error);
+      } finally {
+        setLoadingCv(false);
+      }
+    };
+
+    fetchCvUrl();
+  }, []);
+
+  // --- AUDIO EFFECT 1: COIN SOUND ---
   const playCoinSound = () => {
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContext) return;
       const ctx = new AudioContext();
 
-      // Nada Tinggi (Cling!)
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       
-      osc.type = "sine"; // Gelombang sinus murni untuk koin
-      osc.frequency.setValueAtTime(987.77, ctx.currentTime); // B5
-      osc.frequency.setValueAtTime(1318.51, ctx.currentTime + 0.08); // E6 (Cepat naik)
+      osc.type = "sine"; 
+      osc.frequency.setValueAtTime(987.77, ctx.currentTime); 
+      osc.frequency.setValueAtTime(1318.51, ctx.currentTime + 0.08); 
 
       gain.gain.setValueAtTime(0.1, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
@@ -38,7 +63,7 @@ const ButtonsAction = ({ onOpenCertificates }: ButtonsActionProps) => {
     }
   };
 
-  // --- AUDIO EFFECT 2: FIREBALL SOUND (Untuk Tombol CV) ---
+  // --- AUDIO EFFECT 2: FIREBALL SOUND ---
   const playFireballSound = () => {
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -48,8 +73,7 @@ const ButtonsAction = ({ onOpenCertificates }: ButtonsActionProps) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      osc.type = "sawtooth"; // Gelombang lebih tajam
-      // Pitch turun drastis (Bloop!)
+      osc.type = "sawtooth";
       osc.frequency.setValueAtTime(800, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
 
@@ -65,7 +89,6 @@ const ButtonsAction = ({ onOpenCertificates }: ButtonsActionProps) => {
     }
   };
 
-  // --- HANDLER BUTTON CLICK ---
   const handleCertClick = () => {
     playCoinSound();
     if (onOpenCertificates) onOpenCertificates();
@@ -74,34 +97,31 @@ const ButtonsAction = ({ onOpenCertificates }: ButtonsActionProps) => {
 
   const handleCVClick = () => {
     playFireballSound();
+    if (!cvUrl && !loadingCv) {
+        alert("CV file not found in database.");
+        return;
+    }
     setShowCV(true);
   };
 
-  // Style untuk tombol 8-bit (Merah)
   const btnStyle = "flex items-center gap-2 bg-[#e52521] hover:bg-[#ff4444] text-white border-b-4 border-r-4 border-black active:border-b-0 active:border-r-0 active:translate-y-1 active:translate-x-1 transition-all px-4 py-2 font-bold uppercase tracking-wider text-xs shadow-[2px_2px_0px_rgba(0,0,0,0.5)] cursor-pointer group";
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {/* Button Certificate (COIN SOUND) */}
-      <button
-        className={btnStyle}
-        onClick={handleCertClick}
-      >
+      {/* Button Certificate */}
+      <button className={btnStyle} onClick={handleCertClick}>
         <Award size={16} className="text-[#fbd000] group-hover:rotate-12 transition-transform" />
         <span>Certificates</span>
       </button>
 
-      {/* Button CV (FIREBALL SOUND) */}
-      <button
-        className={btnStyle}
-        onClick={handleCVClick}
-      >
+      {/* Button CV */}
+      <button className={btnStyle} onClick={handleCVClick} disabled={loadingCv}>
         <FileUser size={16} className="text-[#fbd000] group-hover:rotate-12 transition-transform" />
-        <span>My CV</span>
+        <span>{loadingCv ? "Loading..." : "My CV"}</span>
       </button>
 
       {/* --- MODAL PORTAL (CV) --- */}
-      {showCV &&
+      {showCV && cvUrl &&
         createPortal(
           <div
             className="fixed inset-0 z-9999 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200 font-mono"
@@ -120,11 +140,13 @@ const ButtonsAction = ({ onOpenCertificates }: ButtonsActionProps) => {
 
                 <div className="flex items-center gap-2">
                   <a
-                    href={CvFile}
+                    href={cvUrl}
                     download="CV_Muhamad_Raffi.pdf"
+                    target="_blank"
+                    rel="noreferrer"
                     className="p-2 bg-black hover:bg-gray-800 text-white border-2 border-white transition-colors cursor-pointer"
-                    title="Download"
-                    onClick={playCoinSound} // Sound effect saat download
+                    title="Download / Open Original"
+                    onClick={playCoinSound}
                   >
                     <Download size={16} />
                   </a>
@@ -141,7 +163,7 @@ const ButtonsAction = ({ onOpenCertificates }: ButtonsActionProps) => {
               {/* PDF Viewer */}
               <div className="flex-1 w-full h-full bg-[#333] relative p-2">
                 <iframe
-                  src={CvFile}
+                  src={cvUrl}
                   className="w-full h-full border-2 border-white/20"
                   title="CV Viewer"
                 />

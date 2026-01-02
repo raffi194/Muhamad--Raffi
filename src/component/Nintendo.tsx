@@ -5,12 +5,20 @@ import DetailEducation from "./Education/DetailEducation";
 import Contactme from "./contact/Contactme";
 import DetailSkill from "./Skill/DetailSkill";
 import DetailExperience from "./Experience/Experience";
+import DetailProject from "./Project/DetailProject";
 import Logo from "./splashscreen/Logo";
 import Loading from "./Loading";
 
 const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
   const [activeScreen, setActiveScreen] = useState<
-    "default" | "home" | "profile" | "education" | "skill" | "experience" | "contact"
+    | "default"
+    | "home"
+    | "profile"
+    | "education"
+    | "skill"
+    | "experience"
+    | "contact"
+    | "project"
   >("default");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -63,11 +71,36 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
 
     // d. Tunggu sebentar (misal 2 detik) lalu ganti halaman
     setTimeout(() => {
-      const validScreens: ("default" | "profile" | "education" | "skill" | "experience" | "contact")[] =
-        ["default", "profile", "education", "skill", "experience", "contact"];
+      const validScreens: (
+        | "default"
+        | "home"
+        | "profile"
+        | "education"
+        | "skill"
+        | "experience"
+        | "contact"
+        | "project"
+      )[] = [
+        "default",
+        "home",
+        "profile",
+        "education",
+        "skill",
+        "experience",
+        "contact",
+        "project",
+      ];
       if (validScreens.includes(targetScreen as any)) {
         setActiveScreen(
-          targetScreen as "default" | "profile" | "education" | "skill" | "experience" | "contact"
+          targetScreen as
+            | "default"
+            | "home"
+            | "profile"
+            | "education"
+            | "skill"
+            | "experience"
+            | "contact"
+            | "project"
         );
       }
       setIsLoading(false); // Matikan loading
@@ -353,13 +386,20 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
 
                 {activeScreen === "skill" && (
                   <div className="w-full h-full">
-                    <DetailSkill width="100%" height="100%"/>
+                    <DetailSkill width="100%" height="100%" />
                   </div>
                 )}
 
                 {activeScreen === "experience" && (
                   <div className="w-full h-full">
-                    <DetailExperience width="100%" height="100%"/>
+                    <DetailExperience width="100%" height="100%" />
+                  </div>
+                )}
+
+                {activeScreen === "project" && (
+                  <div className="w-full h-full">
+                    {/* Saat back ditekan, kembali ke home */}
+                    <DetailProject/>
                   </div>
                 )}
               </>
@@ -647,13 +687,13 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
       <g
         id="Button_B_Interactive"
         onClick={() => {
-          playGameSound(); // Memanggil sound effect generator
+          playGameSound();
           console.log("Button B Pressed!");
+          // PERBAIKAN DISINI: Gunakan handleNavigation agar konsisten
+          handleNavigation("project"); 
         }}
         className="cursor-pointer transition-all duration-100 ease-in-out active:scale-90 active:brightness-90 hover:brightness-110"
         style={{
-          // PENTING: Koordinat ini disesuaikan dengan cx/cy tombol B
-          // agar mengecil tepat ke tengah saat ditekan
           transformOrigin: "1126.62px 173.624px",
           transformBox: "view-box",
         }}

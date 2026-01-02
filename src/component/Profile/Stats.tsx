@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
 import { GraduationCap } from "lucide-react";
 import { faPlaystation } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,63 +14,97 @@ const NintendoIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Interface Data
+interface StatItem {
+  id: number;
+  label: string;
+  value: string;
+  icon_key: string;
+}
+
 const Stats = () => {
-  // Style Block Dasar (Parent sudah flex center justify center)
+  const [stats, setStats] = useState<StatItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch Data
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("profile_stats")
+          .select("*")
+          .order("id", { ascending: true }); // Pastikan urutan tetap: GPA -> Project -> Exp
+
+        if (error) throw error;
+        if (data) setStats(data);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  // Style Block Dasar
   const blockStyle = "relative h-32 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,0.3)] flex flex-col items-center justify-center transition-transform hover:-translate-y-2 hover:shadow-[6px_6px_0px_rgba(0,0,0,0.3)] active:translate-y-1 active:shadow-none cursor-pointer group overflow-hidden";
-  
-  // Style Question Block (Kuning)
   const questionBlock = `${blockStyle} bg-[#fbd000]`;
-  // Style Brick Block (Coklat/Merah Bata)
   const brickBlock = `${blockStyle} bg-[#c25934]`;
+
+  // Helper untuk render icon berdasarkan key database
+  const renderIcon = (key: string, className: string) => {
+    if (key === 'gpa') return <GraduationCap className={className} size={28} />;
+    if (key === 'project') return <FontAwesomeIcon icon={faPlaystation} className={`${className} text-2xl`} />;
+    if (key === 'exp') return <NintendoIcon className={className} />;
+    return null;
+  };
+
+  // Helper render content (karena strukturnya berulang)
+  const renderContent = (item: StatItem, isDarkText: boolean) => (
+    <div className={`z-10 flex flex-col items-center justify-center ${isDarkText ? "text-black" : "text-white"}`}>
+        {renderIcon(item.icon_key, "mb-2 drop-shadow-md")}
+        <div className="text-3xl font-black leading-none drop-shadow-md">{item.value}</div>
+        <div className="text-[10px] uppercase tracking-widest mt-1 opacity-90 font-bold">{item.label}</div>
+    </div>
+  );
+
+  // Loading State (Skeleton sederhana)
+  if (loading) return <div className="text-center font-mono animate-pulse">Loading Stats...</div>;
+
+  // Pastikan ada data, kalau kosong return null/error
+  if (stats.length < 3) return null;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono">
       
-      {/* Item 1: GPA (Question Block Style) */}
+      {/* Item 1: GPA (Question Block) */}
       <div className={questionBlock}>
-        {/* Paku di 4 sudut */}
+        {/* Hiasan Paku */}
         <div className="absolute top-1 left-1 w-1.5 h-1.5 bg-black/30 rounded-full" />
         <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-black/30 rounded-full" />
         <div className="absolute bottom-1 left-1 w-1.5 h-1.5 bg-black/30 rounded-full" />
         <div className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-black/30 rounded-full" />
         
-        {/* Content Centered (Mengikuti struktur Item 2) */}
-        <div className="z-10 flex flex-col items-center justify-center text-black">
-            {/* mb-2 disamakan dengan Item 2 */}
-            <GraduationCap className="mb-2" size={28} /> 
-            <div className="text-3xl font-black leading-none">3.5+</div>
-            {/* Label dimasukkan ke flow flex, bukan absolute */}
-            <div className="text-[10px] uppercase tracking-widest mt-1 opacity-90 font-bold">GPA Score</div>
-        </div>
+        {renderContent(stats[0], true)}
       </div>
 
-      {/* Item 2: Projects (Brick Block Style) - Reference Center */}
+      {/* Item 2: Projects (Brick Block) */}
       <div className={brickBlock}>
-         {/* Pola Bata CSS */}
          <div className="absolute inset-0 opacity-20 bg-[linear-gradient(335deg,rgba(0,0,0,0.3)_2px,transparent_2px),linear-gradient(155deg,rgba(0,0,0,0.3)_2px,transparent_2px),linear-gradient(335deg,rgba(0,0,0,0.3)_2px,transparent_2px),linear-gradient(155deg,rgba(0,0,0,0.3)_2px,transparent_2px)] bg-size-[20px_20px]" />
          
-         {/* Content Centered */}
-         <div className="z-10 flex flex-col items-center justify-center text-white">
-            <FontAwesomeIcon icon={faPlaystation} className="text-2xl mb-2 drop-shadow-md" />
-            <div className="text-3xl font-black leading-none drop-shadow-md">1+</div>
-            <div className="text-[10px] uppercase tracking-widest mt-1 opacity-90">Projects</div>
-         </div>
+         {renderContent(stats[1], false)}
       </div>
 
-      {/* Item 3: Experience (Question Block Style) */}
+      {/* Item 3: Experience (Question Block) */}
       <div className={questionBlock}>
-        {/* Paku di 4 sudut */}
+        {/* Hiasan Paku */}
         <div className="absolute top-1 left-1 w-1.5 h-1.5 bg-black/30 rounded-full" />
         <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-black/30 rounded-full" />
         <div className="absolute bottom-1 left-1 w-1.5 h-1.5 bg-black/30 rounded-full" />
         <div className="absolute bottom-1 right-1 w-1.5 h-1.5 bg-black/30 rounded-full" />
 
-        {/* Content Centered (Mengikuti struktur Item 2) */}
-        <div className="z-10 flex flex-col items-center justify-center text-black">
-            <NintendoIcon className="mb-2" />
-            <div className="text-3xl font-black leading-none">01+</div>
-            <div className="text-[10px] uppercase tracking-widest mt-1 opacity-90 font-bold">Month Exp</div>
-        </div>
+        {renderContent(stats[2], true)}
       </div>
 
     </div>
