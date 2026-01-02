@@ -1,23 +1,142 @@
 import * as React from "react";
-// Pastikan path import gambar benar
+// Pastikan path import gambar benar sesuai struktur folder Anda
 import LogoBg from "../../assets/Logobg.png";
 
-// Definisi tipe props agar bisa menerima fungsi callback
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
-  onFinish?: () => void; // Fungsi opsional untuk dipanggil setelah animasi selesai
+  onFinish?: () => void;
 }
 
 const Logo = ({ onFinish, ...props }: LogoProps) => {
   
-  // LOGIKA TIMER: Pindah halaman setelah 3 detik
+  // --- ADVANCED AUDIO GENERATOR (Whoosh + Chime) ---
+  const playCinematicIntro = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      
+      const ctx = new AudioContext();
+      const now = ctx.currentTime;
+      const duration = 3.0; // Durasi total animasi
+
+      // ==========================================
+      // LAYER 1: THE "WHOOSH" (Suara Angin/Build-up)
+      // ==========================================
+      // Kita membuat "White Noise" lalu memfilternya agar terdengar seperti angin lewat
+      const bufferSize = ctx.sampleRate * duration;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      
+      // Mengisi buffer dengan random noise
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      // Filter Lowpass: Ini kunci efek "Whoosh"
+      // Suara bergerak dari "mendem" (frekuensi rendah) ke "terbuka" (frekuensi tinggi)
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = "lowpass";
+      
+      // Animasi Filter: Mulai dari 100Hz (gelap) naik ke 4000Hz (terang/desing)
+      noiseFilter.frequency.setValueAtTime(100, now);
+      noiseFilter.frequency.exponentialRampToValueAtTime(4000, now + duration - 0.5);
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.05, now); // Volume awal pelan
+      noiseGain.gain.linearRampToValueAtTime(0.1, now + 1.5); // Naik sedikit di tengah
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + duration); // Hilang di akhir
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noise.start(now);
+
+
+      // ==========================================
+      // LAYER 2: THE "SWITCH" CLICK (Awal Mulai)
+      // ==========================================
+      // Suara "Tik" kecil di awal seperti menyalakan konsol
+      const clickOsc = ctx.createOscillator();
+      const clickGain = ctx.createGain();
+      clickOsc.type = "square";
+      clickOsc.frequency.setValueAtTime(800, now);
+      clickOsc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+      clickGain.gain.setValueAtTime(0.1, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      
+      clickOsc.connect(clickGain);
+      clickGain.connect(ctx.destination);
+      clickOsc.start(now);
+      clickOsc.stop(now + 0.1);
+
+
+      // ==========================================
+      // LAYER 3: THE "SHIMMER" (Harmoni Pengiring)
+      // ==========================================
+      // Suara berdengung halus yang naik pitchnya (Tension rising)
+      const padOsc = ctx.createOscillator();
+      const padGain = ctx.createGain();
+      padOsc.type = "triangle";
+      padOsc.frequency.setValueAtTime(220, now); // Nada A3
+      padOsc.frequency.linearRampToValueAtTime(440, now + duration); // Naik ke A4 pelan-pelan
+      
+      padGain.gain.setValueAtTime(0, now);
+      padGain.gain.linearRampToValueAtTime(0.05, now + 0.5); // Fade in
+      padGain.gain.linearRampToValueAtTime(0, now + duration); // Fade out
+      
+      padOsc.connect(padGain);
+      padGain.connect(ctx.destination);
+      padOsc.start(now);
+      padOsc.stop(now + duration);
+
+
+      // ==========================================
+      // LAYER 4: THE GRAND FINALE "CHIME" (Selesai)
+      // ==========================================
+      // Bunyi "Tring!" jernih saat logo selesai menggambar (di detik ke-2.5)
+      const chimeTime = now + 2.4; // Waktu bunyi (sinkron saat fill opacity jadi 1)
+      
+      const playTone = (freq: number, type: OscillatorType) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, chimeTime);
+        
+        gain.gain.setValueAtTime(0, chimeTime);
+        gain.gain.linearRampToValueAtTime(0.2, chimeTime + 0.05); // Attack cepat
+        gain.gain.exponentialRampToValueAtTime(0.001, chimeTime + 1.5); // Decay panjang (Gema)
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(chimeTime);
+        osc.stop(chimeTime + 1.5);
+      };
+
+      // Chord Major yang Jernih (Cincin Nintendo)
+      playTone(1046.50, "sine"); // C6
+      playTone(1318.51, "sine"); // E6
+      playTone(2093.00, "sine"); // C7 (Kilauan tinggi)
+
+    } catch (e) {
+      console.error("Audio error", e);
+    }
+  };
+
+  // LOGIKA TIMER
   React.useEffect(() => {
+    // 1. Mainkan suara Audio Cinematic
+    playCinematicIntro();
+
+    // 2. Timer Visual Pindah Halaman
     const timer = setTimeout(() => {
       if (onFinish) {
         onFinish();
       }
-    }, 3000); // 3000ms = 3 detik (Sesuai durasi animasi CSS)
+    }, 3000); // 3000ms = 3 detik
 
-    return () => clearTimeout(timer); // Bersihkan timer jika komponen di-unmount
+    return () => clearTimeout(timer); 
   }, [onFinish]);
 
   return (
@@ -34,8 +153,8 @@ const Logo = ({ onFinish, ...props }: LogoProps) => {
           /* Animasi Menggambar (3 detik) */
           @keyframes drawStroke {
             0% { stroke-dashoffset: 1000; fill-opacity: 0; }
-            60% { stroke-dashoffset: 0; fill-opacity: 0; }
-            100% { stroke-dashoffset: 0; fill-opacity: 1; }
+            80% { stroke-dashoffset: 0; fill-opacity: 0; } /* Garis selesai di 80% */
+            100% { stroke-dashoffset: 0; fill-opacity: 1; } /* Fill muncul saat "Chime" bunyi */
           }
 
           /* Animasi Floating (Hiasan) */
@@ -51,14 +170,12 @@ const Logo = ({ onFinish, ...props }: LogoProps) => {
             stroke-dashoffset: 1000;
             fill: #F0FDFF;
             fill-opacity: 0;
-            /* Durasi animasi 3s -> Sinkron dengan timer useEffect */
-            animation: drawStroke 3s ease-in-out forwards;
+            /* Sinkronisasi dengan Audio Duration (3s) */
+            animation: drawStroke 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
           }
 
           .floating-group {
-            /* Posisi default di tengah */
             transform: translate(68.67px, 51.5px) scale(0.3333, 0.5);
-            /* Mulai floating setelah draw selesai (opsional) */
             animation: float 6s ease-in-out 3s infinite;
           }
         `}
