@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { Send, User, Mail, FileText, Loader2 } from "lucide-react"; // Tambah Loader2 untuk loading icon
 import emailjs from "@emailjs/browser";
 import Contactmebg from "../../assets/ContactMebg.png";
+import Directions from "../Directions";
 
 // Import komponen SVG
 import TouchIt from "./TouchIt";
@@ -180,6 +181,9 @@ const Contactme = () => {
             </form>
           </div>
         </div>
+      </div>
+      <div className="scale-40 bg-white/20 backdrop-blur-md border border-white/30 shadow-lg p-2 rounded-4xl translate-y-3 pointer-events-none absolute bottom-0 left-1/2 -translate-x-202 z-10">
+        <Directions />
       </div>
     </div>
   );
