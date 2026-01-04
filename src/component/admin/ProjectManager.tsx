@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabaseClient";
 interface Category {
   id: number;
   title: string;
-  description: string;
+  // description: string; // [DIHAPUS]
   thumbnail_url: string;
 }
 
@@ -29,6 +29,7 @@ const ProjectManager: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false); // State untuk loading upload
 
   // Form States
   const [catForm, setCatForm] = useState<Partial<Category>>({});
@@ -72,6 +73,38 @@ const ProjectManager: React.FC = () => {
     }
   }, [selectedCategory]);
 
+  // --- HANDLE FILE UPLOAD ---
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'category' | 'project') => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    setUploading(true);
+    const file = e.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${type}s/${Date.now()}.${fileExt}`;
+
+    try {
+        const { error: uploadError } = await supabase.storage
+            .from('portfolio')
+            .upload(fileName, file);
+        
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage.from('portfolio').getPublicUrl(fileName);
+        const publicUrl = data.publicUrl;
+
+        if (type === 'category') {
+            setCatForm(prev => ({ ...prev, thumbnail_url: publicUrl }));
+        } else {
+            setProjForm(prev => ({ ...prev, image_url: publicUrl }));
+        }
+
+    } catch (error: any) {
+        alert("Upload failed: " + error.message);
+    } finally {
+        setUploading(false);
+    }
+  };
+
   // --- CRUD CATEGORY ---
   const handleSaveCategory = async () => {
     if (!catForm.title) return alert("Title is required!");
@@ -84,6 +117,8 @@ const ProjectManager: React.FC = () => {
         setCatForm({});
         setIsEditing(false);
         fetchCategories();
+      } else {
+        alert("Error: " + error.message);
       }
     } else {
       const { error } = await supabase.from("categories").insert([catForm]);
@@ -91,6 +126,8 @@ const ProjectManager: React.FC = () => {
         alert("Category added!");
         setCatForm({});
         fetchCategories();
+      } else {
+        alert("Error: " + error.message);
       }
     }
     setLoading(false);
@@ -100,6 +137,7 @@ const ProjectManager: React.FC = () => {
     if (!confirm("WARNING: Deleting this category will delete ALL projects inside it! Continue?")) return;
     const { error } = await supabase.from("categories").delete().eq("id", id);
     if (!error) fetchCategories();
+    else alert("Delete failed: " + error.message);
   };
 
   // --- CRUD PROJECT ---
@@ -129,6 +167,8 @@ const ProjectManager: React.FC = () => {
             setProjForm({});
             setIsEditing(false);
             fetchProjects(selectedCategory.id);
+        } else {
+            alert("Error: " + error.message);
         }
     } else {
         const { error } = await supabase.from("projects").insert([payload]);
@@ -136,6 +176,8 @@ const ProjectManager: React.FC = () => {
             alert("Project added!");
             setProjForm({});
             fetchProjects(selectedCategory.id);
+        } else {
+            alert("Error: " + error.message);
         }
     }
     setLoading(false);
@@ -145,11 +187,11 @@ const ProjectManager: React.FC = () => {
     if (!confirm("Delete this project?")) return;
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (!error && selectedCategory) fetchProjects(selectedCategory.id);
+    else if (error) alert("Delete failed: " + error.message);
   };
 
   // --- EDIT HELPERS ---
   const startEditCategory = (cat: Category) => {
-    // Pastikan kita ada di mode Manage Category (null)
     setSelectedCategory(null);
     setCatForm(cat);
     setIsEditing(true);
@@ -165,6 +207,10 @@ const ProjectManager: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // --- STYLES ---
+  const inputClass = "w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-white focus:border-red-500 outline-none italic transition-colors placeholder:text-zinc-600";
+  const labelClass = "text-xs font-bold text-zinc-400 uppercase ml-1 mb-1 block";
+
   return (
     <div className="min-h-screen bg-[#1a1a1a] p-4 md:p-8 font-sans text-white overflow-y-auto nintendo-scroll">
       <div className="max-w-7xl mx-auto">
@@ -172,13 +218,12 @@ const ProjectManager: React.FC = () => {
         {/* --- HEADER --- */}
         <div className="relative mb-8 text-center">
             <h1 className="text-5xl md:text-6xl font-black italic text-yellow-400 uppercase tracking-tighter drop-shadow-[4px_4px_0_#000]">
-                Project
+                Project Manager
             </h1>
         </div>
 
-        {/* --- CATEGORY CHOICE BUTTONS (TAB STYLE) --- */}
+        {/* --- CATEGORY CHOICE BUTTONS --- */}
         <div className="flex flex-wrap gap-3 mb-8 justify-center items-center">
-            {/* 1. Tombol Default: Manage Categories */}
             <button
                 onClick={() => setSelectedCategory(null)}
                 className={`px-5 py-2 rounded skew-x-[-10deg] font-bold uppercase italic border-2 transition-all duration-300 shadow-md ${
@@ -187,13 +232,11 @@ const ProjectManager: React.FC = () => {
                     : "bg-zinc-800 border-zinc-600 text-zinc-400 hover:bg-zinc-700 hover:text-white"
                 }`}
             >
-                ⚙️ Garage (Categories)
+                ⚙️ Garage
             </button>
 
-            {/* Separator visual */}
             <div className="w-px h-8 bg-zinc-700 mx-2 hidden md:block"></div>
 
-            {/* 2. Tombol Pilihan Category */}
             {categories.map((cat) => (
                 <button
                     key={cat.id}
@@ -212,12 +255,12 @@ const ProjectManager: React.FC = () => {
         {/* --- MAIN CONTENT GRID --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {/* --- KOLOM KIRI: FORM INPUT (Dinamis: Category Form / Project Form) --- */}
+            {/* --- KOLOM KIRI: FORM INPUT --- */}
             <div className="lg:col-span-1">
                 <div className={`border-4 rounded-xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)] sticky top-8 transition-colors duration-500 ${
                     selectedCategory ? "bg-zinc-900 border-yellow-400" : "bg-zinc-900 border-red-600"
                 }`}>
-                    <h2 className={`text-2xl font-bold italic mb-4 uppercase border-b-2 pb-2 ${
+                    <h2 className={`text-2xl font-bold italic mb-6 uppercase border-b-2 pb-2 ${
                         selectedCategory ? "text-yellow-400 border-yellow-400" : "text-red-500 border-red-600"
                     }`}>
                         {selectedCategory 
@@ -226,45 +269,49 @@ const ProjectManager: React.FC = () => {
                         }
                     </h2>
                     
-                    {/* LOGIKA FORM: Jika selectedCategory null -> Form Kategori. Jika ada -> Form Project */}
                     {!selectedCategory ? (
-                        // --- FORM CATEGORY ---
+                        // --- FORM CATEGORY (DESKRIPSI DIHAPUS) ---
                         <div className="flex flex-col gap-4 animate-in fade-in duration-300">
                             <div>
-                                <label className="text-xs font-bold text-red-500 uppercase ml-1">Category Title</label>
+                                <label className={labelClass}>Category Title</label>
                                 <input 
-                                    className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-white focus:border-red-500 outline-none italic transition-colors"
+                                    className={inputClass}
                                     placeholder="e.g. Frontend Development"
                                     value={catForm.title || ""}
                                     onChange={e => setCatForm({...catForm, title: e.target.value})}
                                 />
                             </div>
+                            
+                            {/* UPLOAD THUMBNAIL CATEGORY */}
                             <div>
-                                <label className="text-xs font-bold text-zinc-400 uppercase ml-1">Description</label>
-                                <textarea 
-                                    className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-white focus:border-red-500 outline-none italic transition-colors"
-                                    rows={3}
-                                    placeholder="Short description..."
-                                    value={catForm.description || ""}
-                                    onChange={e => setCatForm({...catForm, description: e.target.value})}
-                                />
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-zinc-400 uppercase ml-1">Thumbnail URL</label>
+                                <label className={labelClass}>Thumbnail Image</label>
+                                {catForm.thumbnail_url && (
+                                    <div className="mb-2 border-2 border-dashed border-zinc-600 p-1 rounded bg-black/50">
+                                        <img src={catForm.thumbnail_url} alt="Preview" className="h-20 w-full object-contain" />
+                                    </div>
+                                )}
                                 <input 
-                                    className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-zinc-300 focus:border-red-500 outline-none text-xs transition-colors"
-                                    placeholder="https://..."
-                                    value={catForm.thumbnail_url || ""}
-                                    onChange={e => setCatForm({...catForm, thumbnail_url: e.target.value})}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleFileUpload(e, 'category')}
+                                    disabled={uploading}
+                                    className="block w-full text-xs text-zinc-400
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded file:border-0
+                                      file:text-xs file:font-bold
+                                      file:bg-zinc-700 file:text-white
+                                      hover:file:bg-zinc-600 cursor-pointer"
                                 />
+                                {uploading && <p className="text-yellow-400 text-xs mt-1 animate-pulse">Uploading...</p>}
                             </div>
-                            <div className="flex gap-2 mt-2">
+
+                            <div className="flex gap-2 mt-4">
                                 <button 
                                     onClick={handleSaveCategory}
-                                    disabled={loading}
-                                    className="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold uppercase italic -skew-x-6 transition-all shadow-md active:scale-95"
+                                    disabled={loading || uploading}
+                                    className="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold uppercase italic -skew-x-6 transition-all shadow-md active:scale-95 disabled:bg-zinc-600"
                                 >
-                                    {loading ? "Saving..." : isEditing ? "Update Category" : "Add Category"}
+                                    {loading ? "Saving..." : isEditing ? "Update" : "Add"}
                                 </button>
                                 {isEditing && (
                                     <button 
@@ -280,37 +327,52 @@ const ProjectManager: React.FC = () => {
                         // --- FORM PROJECT ---
                         <div className="flex flex-col gap-4 animate-in fade-in duration-300">
                             <div>
-                                <label className="text-xs font-bold text-yellow-400 uppercase ml-1">Project Title</label>
+                                <label className={labelClass}>Project Title</label>
                                 <input 
-                                    className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-white focus:border-yellow-400 outline-none italic transition-colors"
+                                    className={`${inputClass} focus:border-yellow-400`}
                                     placeholder="e.g. Piston Cup App"
                                     value={projForm.title || ""}
                                     onChange={e => setProjForm({...projForm, title: e.target.value})}
                                 />
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-zinc-400 uppercase ml-1">Description</label>
+                                <label className={labelClass}>Description</label>
                                 <textarea 
-                                    className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-white focus:border-yellow-400 outline-none italic"
+                                    className={`${inputClass} focus:border-yellow-400`}
                                     rows={3}
                                     placeholder="Project details..."
                                     value={projForm.description || ""}
                                     onChange={e => setProjForm({...projForm, description: e.target.value})}
                                 />
                             </div>
+                            
+                            {/* UPLOAD PROJECT IMAGE */}
                             <div>
-                                <label className="text-xs font-bold text-zinc-400 uppercase ml-1">Image URL</label>
+                                <label className={labelClass}>Project Image</label>
+                                {projForm.image_url && (
+                                    <div className="mb-2 border-2 border-dashed border-zinc-600 p-1 rounded bg-black/50">
+                                        <img src={projForm.image_url} alt="Preview" className="h-24 w-full object-contain" />
+                                    </div>
+                                )}
                                 <input 
-                                    className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-zinc-300 focus:border-yellow-400 outline-none text-xs"
-                                    placeholder="https://..."
-                                    value={projForm.image_url || ""}
-                                    onChange={e => setProjForm({...projForm, image_url: e.target.value})}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleFileUpload(e, 'project')}
+                                    disabled={uploading}
+                                    className="block w-full text-xs text-zinc-400
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded file:border-0
+                                      file:text-xs file:font-bold
+                                      file:bg-zinc-700 file:text-white
+                                      hover:file:bg-zinc-600 cursor-pointer"
                                 />
+                                {uploading && <p className="text-yellow-400 text-xs mt-1 animate-pulse">Uploading...</p>}
                             </div>
+
                             <div>
-                                <label className="text-xs font-bold text-zinc-400 uppercase ml-1">Tech Stack (comma separated)</label>
+                                <label className={labelClass}>Tech Stack (comma separated)</label>
                                 <input 
-                                    className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-white focus:border-yellow-400 outline-none italic"
+                                    className={`${inputClass} focus:border-yellow-400`}
                                     placeholder="React, Supabase, Tailwind"
                                     value={projForm.tech_stack_str || ""}
                                     onChange={e => setProjForm({...projForm, tech_stack_str: e.target.value})}
@@ -318,18 +380,18 @@ const ProjectManager: React.FC = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Demo URL</label>
+                                    <label className={labelClass}>Demo URL</label>
                                     <input 
-                                        className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-zinc-300 text-xs focus:border-yellow-400 outline-none"
+                                        className={`${inputClass} focus:border-yellow-400 text-xs`}
                                         placeholder="https://..."
                                         value={projForm.demo_url || ""}
                                         onChange={e => setProjForm({...projForm, demo_url: e.target.value})}
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Repo URL</label>
+                                    <label className={labelClass}>Repo URL</label>
                                     <input 
-                                        className="w-full bg-zinc-800 border-2 border-zinc-700 p-2 rounded text-zinc-300 text-xs focus:border-yellow-400 outline-none"
+                                        className={`${inputClass} focus:border-yellow-400 text-xs`}
                                         placeholder="https://github..."
                                         value={projForm.repo_url || ""}
                                         onChange={e => setProjForm({...projForm, repo_url: e.target.value})}
@@ -337,11 +399,11 @@ const ProjectManager: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 mt-2">
+                            <div className="flex gap-2 mt-4">
                                 <button 
                                     onClick={handleSaveProject}
-                                    disabled={loading}
-                                    className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black py-2 rounded font-bold uppercase italic -skew-x-6 transition-all shadow-[0_3px_0_rgba(0,0,0,1)] active:shadow-none active:translate-y-1"
+                                    disabled={loading || uploading}
+                                    className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black py-2 rounded font-bold uppercase italic -skew-x-6 transition-all shadow-[0_3px_0_rgba(0,0,0,1)] active:shadow-none active:translate-y-1 disabled:bg-zinc-600"
                                 >
                                     {loading ? "Saving..." : isEditing ? "Update Project" : "Add Project"}
                                 </button>
@@ -359,7 +421,7 @@ const ProjectManager: React.FC = () => {
                 </div>
             </div>
 
-            {/* --- KOLOM KANAN: LIST DATA (Dinamis) --- */}
+            {/* --- KOLOM KANAN: LIST DATA --- */}
             <div className="lg:col-span-2">
                 
                 {/* 1. JIKA DI MODE GARAGE (MANAGE CATEGORIES) */}
@@ -372,14 +434,15 @@ const ProjectManager: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {categories.map((cat) => (
                                 <div key={cat.id} className="group relative bg-zinc-900 border-2 border-zinc-700 rounded-lg p-4 flex gap-4 items-center hover:border-red-500 transition-all">
-                                    <div className="w-16 h-16 bg-zinc-800 rounded overflow-hidden shrink-0">
-                                        {cat.thumbnail_url && <img src={cat.thumbnail_url} className="w-full h-full object-cover" alt="thumb"/>}
+                                    <div className="w-16 h-16 bg-zinc-800 rounded overflow-hidden shrink-0 border border-zinc-600">
+                                        {cat.thumbnail_url ? (
+                                            <img src={cat.thumbnail_url} className="w-full h-full object-cover" alt="thumb"/>
+                                        ) : <div className="flex items-center justify-center w-full h-full text-xs">No IMG</div>}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h3 className="text-xl font-black italic text-white truncate group-hover:text-red-500 transition-colors">{cat.title}</h3>
-                                        <p className="text-xs text-zinc-400 line-clamp-1">{cat.description}</p>
+                                        {/* Deskripsi di sini dihapus agar tidak error jika fieldnya hilang dari DB */}
                                         <div className="flex gap-2 mt-2">
-                                            {/* Tombol Edit memicu scroll ke form dan set form */}
                                             <button onClick={() => startEditCategory(cat)} className="text-[10px] bg-zinc-700 hover:bg-zinc-600 text-white px-3 py-1 rounded font-bold uppercase">Edit</button>
                                             <button onClick={() => handleDeleteCategory(cat.id)} className="text-[10px] bg-red-900 hover:bg-red-700 text-white px-3 py-1 rounded font-bold uppercase">Delete</button>
                                         </div>

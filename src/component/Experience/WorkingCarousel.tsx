@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "../../lib/supabaseClient"; // Pastikan path ini sesuai dengan struktur folder kamu
+import { supabase } from "../../lib/supabaseClient";
 
 // --- TIPE DATA DARI DATABASE ---
 interface WorkData {
@@ -9,7 +9,7 @@ interface WorkData {
   title: string;
   role: string;
   image: string;
-  desc: string;
+  desc: string; // Field khusus tabel work_experiences
 }
 
 interface WorkingCarouselProps {
@@ -20,8 +20,8 @@ const WorkingCarousel = ({ onActiveImageChange }: WorkingCarouselProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // --- STATE MANAGEMENT ---
-  const [works, setWorks] = useState<WorkData[]>([]); // Data dinamis
-  const [loading, setLoading] = useState(true); // Indikator loading
+  const [works, setWorks] = useState<WorkData[]>([]); 
+  const [loading, setLoading] = useState(true); 
   const [activeIndex, setActiveIndex] = useState(0);
 
   // State Drag
@@ -35,11 +35,10 @@ const WorkingCarousel = ({ onActiveImageChange }: WorkingCarouselProps) => {
     const fetchWorks = async () => {
       try {
         setLoading(true);
-        // Mengambil data dari tabel 'work_experiences'
         const { data, error } = await supabase
           .from('work_experiences')
           .select('*')
-          .order('id', { ascending: true });
+          .order('id', { ascending: false });
 
         if (error) throw error;
 
@@ -164,11 +163,11 @@ const WorkingCarousel = ({ onActiveImageChange }: WorkingCarouselProps) => {
       );
   }
 
-  // Jika data kosong setelah loading selesai
+  // Jika data kosong
   if (works.length === 0) {
       return (
           <div className="flex h-screen w-full items-center justify-center text-white pointer-events-none">
-              <p>Belum ada pengalaman kerja yang ditambahkan.</p>
+              <p>Belum ada pengalaman kerja.</p>
           </div>
       );
   }
@@ -187,6 +186,7 @@ const WorkingCarousel = ({ onActiveImageChange }: WorkingCarouselProps) => {
       <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-auto">
         
         {/* === INFO TEXT PANEL (POJOK KIRI BAWAH) === */}
+        {/* Layout dan ukuran font disamakan persis dengan EventCarousel */}
         <div className="absolute bottom-10 left-8 md:bottom-5 md:left-16 z-40 max-w-full md:max-w-full text-left pointer-events-none">
             {activeWork && (
                 <motion.div
@@ -194,7 +194,7 @@ const WorkingCarousel = ({ onActiveImageChange }: WorkingCarouselProps) => {
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, type: "spring" }}
-                    className="flex flex-col items-start space-y-4"
+                    className="flex flex-col items-start space-y-4 pr-20"
                 >
                     {/* JUDUL */}
                     <h1 className="text-6xl md:text-8xl font-black font-sans text-yellow-400 drop-shadow-[0_5px_5px_rgba(0,0,0,1)] uppercase leading-none tracking-tighter">
@@ -208,7 +208,7 @@ const WorkingCarousel = ({ onActiveImageChange }: WorkingCarouselProps) => {
                         </span>
                     </div>
 
-                    {/* DESKRIPSI */}
+                    {/* DESKRIPSI (Menggunakan field 'desc') */}
                     <p className="text-2xl md:text-3xl text-gray-100 font-medium bg-black/60 p-4 rounded-xl border border-white/10 backdrop-blur-sm max-w-full shadow-xl">
                         {activeWork.desc}
                     </p>
@@ -291,16 +291,17 @@ const WorkingCarousel = ({ onActiveImageChange }: WorkingCarouselProps) => {
                     overflow-hidden 
                     shadow-[0_25px_60px_rgba(0,0,0,0.6)]
                     border-[6px]
-                    bg-gray-800
+                    bg-gray-900 
                     transition-all duration-300
                     pointer-events-auto 
                     select-none
+                    flex items-center justify-center
                     ${isActive ? 'border-yellow-400 shadow-yellow-500/40' : 'border-gray-600 grayscale'}
                 `}>
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover pointer-events-none"
+                    className="w-full h-full object-contain pointer-events-none"
                     // Fallback jika URL gambar rusak
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = "https://placehold.co/600x800?text=No+Image";

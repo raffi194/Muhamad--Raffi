@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "../../lib/supabaseClient"; // Pastikan path import ini sesuai struktur folder Anda
+import { supabase } from "../../lib/supabaseClient";
 
 // --- TIPE DATA DARI DATABASE (Tabel organizations) ---
 interface OrganizationData {
@@ -9,7 +9,7 @@ interface OrganizationData {
   title: string;
   role: string;
   image: string;
-  description: string; // Sesuai dengan kolom di tabel organizations
+  description: string; // Field khusus tabel organizations
 }
 
 interface OrganizationsCarouselProps {
@@ -20,8 +20,8 @@ const OrganizationsCarousel = ({ onActiveImageChange }: OrganizationsCarouselPro
   const containerRef = useRef<HTMLDivElement>(null);
   
   // --- STATE MANAGEMENT ---
-  const [organizations, setOrganizations] = useState<OrganizationData[]>([]); // Data dinamis
-  const [loading, setLoading] = useState(true); // Indikator loading
+  const [organizations, setOrganizations] = useState<OrganizationData[]>([]); 
+  const [loading, setLoading] = useState(true); 
   const [activeIndex, setActiveIndex] = useState(0);
 
   // State Drag
@@ -35,11 +35,10 @@ const OrganizationsCarousel = ({ onActiveImageChange }: OrganizationsCarouselPro
     const fetchOrganizations = async () => {
       try {
         setLoading(true);
-        // Mengambil data dari tabel 'organizations' dan mengurutkannya berdasarkan ID
         const { data, error } = await supabase
           .from('organizations')
           .select('*')
-          .order('id', { ascending: true });
+          .order('id', { ascending: false });
 
         if (error) throw error;
 
@@ -47,7 +46,7 @@ const OrganizationsCarousel = ({ onActiveImageChange }: OrganizationsCarouselPro
           setOrganizations(data);
         }
       } catch (error) {
-        console.error("Gagal mengambil data organisasi:", error);
+        console.error("Gagal mengambil data organizations:", error);
       } finally {
         setLoading(false);
       }
@@ -164,7 +163,7 @@ const OrganizationsCarousel = ({ onActiveImageChange }: OrganizationsCarouselPro
       );
   }
 
-  // Jika data kosong setelah loading selesai
+  // Jika data kosong
   if (organizations.length === 0) {
       return (
           <div className="flex h-screen w-full items-center justify-center text-white pointer-events-none">
@@ -173,7 +172,7 @@ const OrganizationsCarousel = ({ onActiveImageChange }: OrganizationsCarouselPro
       );
   }
 
-  // Ambil data aktif dari state 'organizations'
+  // Ambil data aktif
   const activeOrg = organizations[activeIndex];
 
   return (
@@ -187,15 +186,15 @@ const OrganizationsCarousel = ({ onActiveImageChange }: OrganizationsCarouselPro
       <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-auto">
         
         {/* === INFO TEXT PANEL (POJOK KIRI BAWAH) === */}
+        {/* Layout dan ukuran font disamakan persis dengan EventCarousel */}
         <div className="absolute bottom-10 left-8 md:bottom-5 md:left-16 z-40 max-w-full md:max-w-full text-left pointer-events-none">
-            {/* Pastikan activeOrg ada sebelum merender isinya */}
             {activeOrg && (
                 <motion.div
                     key={activeOrg.id} 
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, type: "spring" }}
-                    className="flex flex-col items-start space-y-4"
+                    className="flex flex-col items-start space-y-4 pr-20"
                 >
                     {/* JUDUL */}
                     <h1 className="text-6xl md:text-8xl font-black font-sans text-yellow-400 drop-shadow-[0_5px_5px_rgba(0,0,0,1)] uppercase leading-none tracking-tighter">
@@ -269,12 +268,12 @@ const OrganizationsCarousel = ({ onActiveImageChange }: OrganizationsCarouselPro
           `}
           style={{ scrollBehavior: 'auto' }} 
         >
-          {organizations.map((org, index) => {
+          {organizations.map((item, index) => {
             const isActive = index === activeIndex;
 
             return (
               <motion.div
-                key={org.id}
+                key={item.id}
                 className="relative shrink-0 flex flex-col items-center justify-center pointer-events-none"
                 animate={{
                   scale: isActive ? 1.05 : 0.85, 
@@ -292,16 +291,17 @@ const OrganizationsCarousel = ({ onActiveImageChange }: OrganizationsCarouselPro
                     overflow-hidden 
                     shadow-[0_25px_60px_rgba(0,0,0,0.6)]
                     border-[6px]
-                    bg-gray-800
+                    bg-gray-900 
                     transition-all duration-300
                     pointer-events-auto 
                     select-none
+                    flex items-center justify-center
                     ${isActive ? 'border-yellow-400 shadow-yellow-500/40' : 'border-gray-600 grayscale'}
                 `}>
                   <img
-                    src={org.image}
-                    alt={org.title}
-                    className="w-full h-full object-cover pointer-events-none"
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-contain pointer-events-none"
                     // Fallback jika URL gambar rusak
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = "https://placehold.co/600x800?text=No+Image";

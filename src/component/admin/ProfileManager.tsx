@@ -58,7 +58,7 @@ const ProfileManager: React.FC = () => {
     const { data, error } = await supabase
       .from("profile_stats")
       .select("*")
-      .order("id", { ascending: true });
+      .order("id", { ascending: false });
     if (!error && data) setStats(data);
   };
 

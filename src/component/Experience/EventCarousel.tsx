@@ -16,7 +16,7 @@ interface EventCarouselProps {
   onActiveImageChange: (imageUrl: string) => void;
 }
 
-const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
+const EventCarousel = ({}: EventCarouselProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // --- STATE MANAGEMENT ---
@@ -39,7 +39,7 @@ const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
         const { data, error } = await supabase
           .from('events')
           .select('*')
-          .order('id', { ascending: true });
+          .order('id', { ascending: false });
 
         if (error) throw error;
 
@@ -113,14 +113,6 @@ const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
         else scrollContainer('left');
     }
   };
-
-  // Update Background Image saat activeIndex berubah
-  useEffect(() => {
-    if (events.length > 0 && events[activeIndex]) {
-        const imageUrl = events[activeIndex].image;
-        onActiveImageChange(imageUrl);
-    }
-  }, [activeIndex, onActiveImageChange, events]);
 
   // --- DRAG HANDLERS ---
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -294,16 +286,19 @@ const EventCarousel = ({ onActiveImageChange }: EventCarouselProps) => {
                     overflow-hidden 
                     shadow-[0_25px_60px_rgba(0,0,0,0.6)]
                     border-[6px]
-                    bg-gray-800
+                    bg-gray-900  /* Ubah background jadi lebih gelap agar menyatu */
                     transition-all duration-300
                     pointer-events-auto 
                     select-none
+                    flex items-center justify-center /* Tambahkan ini agar gambar di tengah */
                     ${isActive ? 'border-yellow-400 shadow-yellow-500/40' : 'border-gray-600 grayscale'}
                 `}>
                   <img
                     src={event.image}
                     alt={event.title}
-                    className="w-full h-full object-cover pointer-events-none"
+                    // PERUBAHAN DISINI: Ganti 'object-cover' menjadi 'object-contain'
+                    className="w-full h-full object-contain pointer-events-none"
+                    
                     // Fallback jika URL gambar rusak
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = "https://placehold.co/600x800?text=No+Image";

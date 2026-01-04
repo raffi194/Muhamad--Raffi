@@ -28,7 +28,7 @@ const DetailProject = () => {
         const { data, error } = await supabase
           .from("categories")
           .select("*")
-          .order("id", { ascending: true });
+          .order("id", { ascending: false });
 
         if (error) throw error;
         if (data) setCategories(data);

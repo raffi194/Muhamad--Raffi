@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
-// --- PERBAIKAN: Gunakan satu Interface Universal untuk menangani semua tipe ---
-// Ini menggantikan EventData, OrganizationData, dan WorkData yang sebelumnya error
+// --- INTERFACE ---
 interface ExperienceItem {
   id?: number;
   title: string;
@@ -15,11 +14,13 @@ interface ExperienceItem {
 const ExperienceManager: React.FC = () => {
   const [subTab, setSubTab] = useState<'event' | 'organization' | 'working'>('event');
   
-  // Gunakan interface ExperienceItem di sini agar tidak 'declared but never used'
   const [dataList, setDataList] = useState<ExperienceItem[]>([]); 
   const [loading, setLoading] = useState(false);
   
-  // State form menampung semua kemungkinan field
+  // State khusus untuk proses upload
+  const [uploading, setUploading] = useState(false);
+
+  // State form
   const [formData, setFormData] = useState<ExperienceItem>({ 
     title: '', 
     role: '', 
@@ -42,13 +43,12 @@ const ExperienceManager: React.FC = () => {
     const { data, error } = await supabase
         .from(tableName)
         .select('*')
-        .order('id', { ascending: true });
+        .order('id', { ascending: false });
         
     if (error) {
         console.error('Error fetching:', error);
         alert(`Error: ${error.message}`);
     } else {
-        // Casting data supabase ke tipe ExperienceItem[]
         setDataList((data as ExperienceItem[]) || []);
     }
     setLoading(false);
@@ -60,20 +60,58 @@ const ExperienceManager: React.FC = () => {
     setIsEditing(null);
   }, [subTab]);
 
+  // --- Handle Image Upload (FITUR BARU) ---
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+      
+      setUploading(true);
+      const file = event.target.files[0];
+      
+      // Buat nama file unik: folder/timestamp-namafile
+      // Pastikan bucket 'portfolio' ada di Supabase Storage Anda (public)
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${subTab}-${Date.now()}.${fileExt}`;
+      const filePath = `experience/${fileName}`;
+
+      // 1. Upload ke Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('portfolio') // Menggunakan bucket 'portfolio' yang sama dengan ProfileManager
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // 2. Ambil Public URL
+      const { data } = supabase.storage
+        .from('portfolio')
+        .getPublicUrl(filePath);
+
+      // 3. Simpan URL ke state formData
+      setFormData(prev => ({ ...prev, image: data.publicUrl }));
+      
+    } catch (error: any) {
+      alert('Error uploading image: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   // --- Handle Submit (Create/Update) ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     let tableName = '';
-    // Siapkan payload dasar
     let payload: any = {
         title: formData.title,
         role: formData.role,
         image: formData.image,
     };
 
-    // Mapping field sesuai tab yang aktif
     if (subTab === 'event') {
         tableName = 'events';
         payload.desc = formData.desc;
@@ -96,7 +134,6 @@ const ExperienceManager: React.FC = () => {
 
     if (!error) {
         alert(isEditing ? 'Data updated successfully!' : 'Data created successfully!');
-        // Reset form
         setFormData({ title: '', role: '', image: '', desc: '', description: '' });
         setIsEditing(null);
         fetchData();
@@ -126,7 +163,6 @@ const ExperienceManager: React.FC = () => {
 
   // --- Handle Edit ---
   const handleEdit = (item: ExperienceItem) => {
-    // Pastikan item.id ada sebelum set state
     if (item.id !== undefined) {
         setIsEditing(item.id);
     }
@@ -142,11 +178,11 @@ const ExperienceManager: React.FC = () => {
   // --- Styles (Pokemon Theme) ---
   const containerStyle = "border-4 border-yellow-400 bg-red-600 p-6 rounded-xl shadow-[10px_10px_0px_#1a202c]";
   const tabStyle = (isActive: boolean) => 
-    `px-6 py-2 font-bold uppercase tracking-widest border-2 border-black transition-all ${
+    `px-6 py-2 font-bold uppercase tracking-widest border-2 border-black transition-all cursor-pointer ${
       isActive ? 'bg-yellow-400 text-black shadow-[4px_4px_0px_black] -translate-y-1' : 'bg-white text-gray-500 hover:bg-gray-100'
     }`;
   
-  const inputStyle = "w-full p-3 border-2 border-black rounded bg-green-100 font-mono focus:outline-none focus:shadow-[4px_4px_0px_black] transition-all";
+  const inputStyle = "w-full p-3 border-2 border-black rounded bg-green-100 font-mono focus:outline-none focus:shadow-[4px_4px_0px_black] transition-all placeholder:text-gray-500";
 
   return (
     <div className="p-8 bg-blue-100 min-h-full font-mono">
@@ -177,47 +213,92 @@ const ExperienceManager: React.FC = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 border-2 border-black rounded-lg">
-                    <input 
-                        placeholder="Title (e.g. Gym Leader)" 
-                        value={formData.title} 
-                        onChange={e => setFormData({...formData, title: e.target.value})} 
-                        className={inputStyle} required 
-                    />
-                    <input 
-                        placeholder="Role (e.g. Water Type)" 
-                        value={formData.role} 
-                        onChange={e => setFormData({...formData, role: e.target.value})} 
-                        className={inputStyle} required 
-                    />
-                    <input 
-                        placeholder="Image URL" 
-                        value={formData.image} 
-                        onChange={e => setFormData({...formData, image: e.target.value})} 
-                        className={inputStyle} 
-                    />
-                    
-                    {/* Kondisional Rendering untuk Field Deskripsi */}
-                    {subTab === 'organization' ? (
-                        <textarea 
-                            placeholder="Description (Organization)" 
-                            value={formData.description} 
-                            onChange={e => setFormData({...formData, description: e.target.value})} 
-                            className={`${inputStyle} h-32`} required 
+                    {/* INPUT TITLE */}
+                    <div>
+                        <label className="text-xs font-bold text-gray-500 ml-1">TITLE</label>
+                        <input 
+                            placeholder="Title (e.g. Gym Leader)" 
+                            value={formData.title} 
+                            onChange={e => setFormData({...formData, title: e.target.value})} 
+                            className={inputStyle} required 
                         />
-                    ) : (
-                        <textarea 
-                            placeholder="Desc (Event/Work)" 
-                            value={formData.desc} 
-                            onChange={e => setFormData({...formData, desc: e.target.value})} 
-                            className={`${inputStyle} h-32`} required 
-                        />
-                    )}
+                    </div>
 
-                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 border-2 border-black shadow-[4px_4px_0px_black] active:translate-y-1 active:shadow-none transition-all">
-                        {loading ? 'SAVING...' : isEditing ? 'UPDATE DATA' : 'REGISTER NEW DATA'}
+                    {/* INPUT ROLE */}
+                    <div>
+                        <label className="text-xs font-bold text-gray-500 ml-1">ROLE / POSITION</label>
+                        <input 
+                            placeholder="Role (e.g. Water Type)" 
+                            value={formData.role} 
+                            onChange={e => setFormData({...formData, role: e.target.value})} 
+                            className={inputStyle} required 
+                        />
+                    </div>
+
+                    {/* INPUT IMAGE (UPLOAD FILE) */}
+                    <div>
+                        <label className="text-xs font-bold text-gray-500 ml-1">IMAGE UPLOAD</label>
+                        
+                        {/* Preview Image jika sudah ada */}
+                        {formData.image && (
+                            <div className="mb-2 p-2 border-2 border-dashed border-gray-400 bg-gray-50 rounded text-center">
+                                <img src={formData.image} alt="Preview" className="h-24 mx-auto object-contain" />
+                                <p className="text-[10px] text-gray-400 mt-1 break-all">{formData.image}</p>
+                            </div>
+                        )}
+                        
+                        <div className="relative">
+                            <input 
+                                type="file" 
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                disabled={uploading}
+                                className={`file:mr-4 file:py-2 file:px-4
+                                    file:rounded-none file:border-0
+                                    file:text-sm file:font-bold
+                                    file:bg-blue-50 file:text-blue-700
+                                    hover:file:bg-blue-100
+                                    ${inputStyle} p-1`} 
+                            />
+                            {uploading && (
+                                <div className="absolute top-0 right-0 bg-yellow-300 px-2 py-1 text-xs font-bold border-2 border-black m-2 animate-bounce">
+                                    Uploading...
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    
+                    {/* INPUT DESCRIPTION (CONDITIONAL) */}
+                    <div>
+                        <label className="text-xs font-bold text-gray-500 ml-1">DESCRIPTION</label>
+                        {subTab === 'organization' ? (
+                            <textarea 
+                                placeholder="Description (Organization)" 
+                                value={formData.description} 
+                                onChange={e => setFormData({...formData, description: e.target.value})} 
+                                className={`${inputStyle} h-32`} required 
+                            />
+                        ) : (
+                            <textarea 
+                                placeholder="Desc (Event/Work)" 
+                                value={formData.desc} 
+                                onChange={e => setFormData({...formData, desc: e.target.value})} 
+                                className={`${inputStyle} h-32`} required 
+                            />
+                        )}
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={loading || uploading}
+                        className={`w-full text-white font-bold py-3 border-2 border-black shadow-[4px_4px_0px_black] active:translate-y-1 active:shadow-none transition-all 
+                        ${loading || uploading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500'}`}
+                    >
+                        {loading ? 'SAVING...' : uploading ? 'WAIT UPLOAD...' : isEditing ? 'UPDATE DATA' : 'REGISTER NEW DATA'}
                     </button>
+                    
                     {isEditing && (
-                        <button type="button" onClick={() => { setIsEditing(null); setFormData({ title: '', role: '', image: '', desc: '', description: '' }); }} className="w-full bg-red-500 text-white font-bold py-2 border-2 border-black">
+                        <button type="button" onClick={() => { setIsEditing(null); setFormData({ title: '', role: '', image: '', desc: '', description: '' }); }} className="w-full bg-red-500 hover:bg-red-400 text-white font-bold py-2 border-2 border-black">
                             CANCEL
                         </button>
                     )}
@@ -225,27 +306,26 @@ const ExperienceManager: React.FC = () => {
             </div>
 
             {/* LIST SECTION (List Style) */}
-            <div className="bg-white border-4 border-black p-4 shadow-[10px_10px_0px_gray] h-[600px] overflow-y-auto">
+            <div className="bg-white border-4 border-black p-4 shadow-[10px_10px_0px_gray] h-[750px] overflow-y-auto nintendo-scroll">
                 <h3 className="text-xl font-bold mb-4 border-b-4 border-black pb-2 uppercase">{subTab === 'working' ? 'Work Exp' : subTab} LIST</h3>
                 {loading && <p>Loading data...</p>}
                 <div className="space-y-4">
                     {dataList.length === 0 && !loading && <p className="text-gray-500">No data found in database.</p>}
                     
                     {dataList.map((item) => (
-                        <div key={item.id} className="flex items-center gap-4 bg-gray-100 p-3 border-2 border-gray-300 hover:border-blue-500 transition-colors">
+                        <div key={item.id} className="flex items-center gap-4 bg-gray-100 p-3 border-2 border-gray-300 hover:border-blue-500 transition-colors group">
                             {item.image ? (
-                                <img src={item.image} alt="icon" className="w-12 h-12 object-cover rounded border border-black bg-white" />
+                                <img src={item.image} alt="icon" className="w-16 h-16 object-cover rounded border-2 border-black bg-white" />
                             ) : (
-                                <div className="w-12 h-12 bg-gray-300 border border-black rounded flex items-center justify-center text-xs">No Img</div>
+                                <div className="w-16 h-16 bg-gray-300 border-2 border-black rounded flex items-center justify-center text-xs font-bold text-gray-500">No Img</div>
                             )}
-                            <div className="flex-1">
-                                <h4 className="font-bold text-lg">{item.title}</h4>
-                                <p className="text-sm text-gray-600">{item.role}</p>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="font-bold text-lg truncate">{item.title}</h4>
+                                <p className="text-sm text-gray-600 truncate">{item.role}</p>
                             </div>
-                            <div className="flex flex-col gap-2">
-                                <button onClick={() => handleEdit(item)} className="bg-yellow-400 px-3 py-1 text-xs font-bold border border-black hover:bg-yellow-500">EDIT</button>
-                                {/* Pastikan ID ada sebelum delete */}
-                                <button onClick={() => item.id && handleDelete(item.id)} className="bg-red-500 text-white px-3 py-1 text-xs font-bold border border-black hover:bg-red-600">DEL</button>
+                            <div className="flex flex-col gap-2 shrink-0">
+                                <button onClick={() => handleEdit(item)} className="bg-yellow-400 px-4 py-1 text-xs font-bold border-2 border-black hover:bg-yellow-300 shadow-[2px_2px_0_black] active:translate-y-0.5 active:shadow-none transition-all">EDIT</button>
+                                <button onClick={() => item.id && handleDelete(item.id)} className="bg-red-500 text-white px-4 py-1 text-xs font-bold border-2 border-black hover:bg-red-400 shadow-[2px_2px_0_black] active:translate-y-0.5 active:shadow-none transition-all">DEL</button>
                             </div>
                         </div>
                     ))}
