@@ -21,7 +21,6 @@ interface Certificate {
 
 const ProfileManager: React.FC = () => {
   // --- STATE TABS ---
-  // Menambahkan tab 'about'
   const [activeTab, setActiveTab] = useState<
     "stats" | "certificates" | "cv" | "about"
   >("stats");
@@ -33,12 +32,16 @@ const ProfileManager: React.FC = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [certForm, setCertForm] = useState<Partial<Certificate>>({});
   const [isEditingCert, setIsEditingCert] = useState(false);
+  
+  // Loading states untuk upload
+  const [uploadingCertImg, setUploadingCertImg] = useState(false);
+  const [uploadingCredential, setUploadingCredential] = useState(false); // [BARU] State untuk loading credential
 
   // --- STATE CV ---
   const [cvUrl, setCvUrl] = useState<string>("");
   const [uploadingCv, setUploadingCv] = useState(false);
 
-  // --- STATE ABOUT (NEW) ---
+  // --- STATE ABOUT ---
   const [aboutText, setAboutText] = useState("");
 
   // --- LOADING STATES ---
@@ -50,7 +53,7 @@ const ProfileManager: React.FC = () => {
     fetchStats();
     fetchCertificates();
     fetchCv();
-    fetchAbout(); // Load About
+    fetchAbout(); 
   }, []);
 
   // --- FETCH FUNCTIONS ---
@@ -81,7 +84,6 @@ const ProfileManager: React.FC = () => {
     if (!error && data) setCvUrl(data.cv_url);
   };
 
-  // FETCH ABOUT
   const fetchAbout = async () => {
     const { data, error } = await supabase
       .from("profile_about")
@@ -116,6 +118,75 @@ const ProfileManager: React.FC = () => {
   };
 
   // --- HANDLERS FOR CERTIFICATES ---
+
+  // 1. Upload Gambar Sertifikat
+  const handleCertImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setUploadingCertImg(true);
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `cert-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('certificates') 
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('certificates')
+        .getPublicUrl(filePath);
+
+      setCertForm({ ...certForm, image_url: data.publicUrl });
+      
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Gagal mengupload gambar.');
+    } finally {
+      setUploadingCertImg(false);
+    }
+  };
+
+  // 2. [BARU] Upload File Credential (PDF/Image)
+  const handleCredentialUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setUploadingCredential(true);
+      
+      // Buat nama file unik
+      const fileExt = file.name.split('.').pop();
+      const fileName = `credential-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Upload ke bucket yang sama 'certificates'
+      const { error: uploadError } = await supabase.storage
+        .from('certificates') 
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Ambil Public URL
+      const { data } = supabase.storage
+        .from('certificates')
+        .getPublicUrl(filePath);
+
+      // Simpan URL ke field credential_url
+      setCertForm({ ...certForm, credential_url: data.publicUrl });
+      
+    } catch (error) {
+      console.error('Error uploading credential:', error);
+      alert('Gagal mengupload file credential.');
+    } finally {
+      setUploadingCredential(false);
+    }
+  };
+
   const handleSaveCertificate = async () => {
     if (!certForm.title || !certForm.issuer)
       return alert("Title and Issuer are required!");
@@ -331,31 +402,57 @@ const ProfileManager: React.FC = () => {
                       }
                       className="border-2 border-black p-2 bg-gray-100 font-bold"
                     />
-                    <input
-                      placeholder="Image URL"
-                      value={certForm.image_url || ""}
-                      onChange={(e) =>
-                        setCertForm({ ...certForm, image_url: e.target.value })
-                      }
-                      className="border-2 border-black p-2 bg-gray-100 font-bold"
-                    />
-                    <input
-                      placeholder="Credential URL"
-                      value={certForm.credential_url || ""}
-                      onChange={(e) =>
-                        setCertForm({
-                          ...certForm,
-                          credential_url: e.target.value,
-                        })
-                      }
-                      className="border-2 border-black p-2 bg-gray-100 font-bold md:col-span-2"
-                    />
+                    
+                    {/* INPUT IMAGE UPLOAD */}
+                    <div className="relative">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCertImageUpload}
+                            disabled={uploadingCertImg}
+                            className="border-2 border-black p-2 bg-gray-100 font-bold w-full text-xs file:mr-2 file:py-1 file:px-2 file:border-2 file:border-black file:font-bold file:bg-[#fbd000] hover:file:bg-[#e4000f] hover:file:text-white transition-colors"
+                        />
+                         {uploadingCertImg && (
+                             <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-1 font-bold">UPLOADING...</span>
+                         )}
+                         {certForm.image_url && !uploadingCertImg && (
+                             <span className="absolute top-0 right-0 bg-green-500 text-white text-[10px] px-1 font-bold">IMAGE READY!</span>
+                         )}
+                    </div>
+
+                    {/* [BARU] INPUT CREDENTIAL UPLOAD (Menggantikan Text Input) */}
+                    <div className="md:col-span-2 relative">
+                        <label className="block text-xs font-bold uppercase mb-1 text-gray-500">
+                          {uploadingCredential ? "Uploading Credential..." : "Credential File (PDF/Image)"}
+                        </label>
+                        <input
+                            type="file"
+                            // Menerima PDF atau Gambar
+                            accept=".pdf,image/*" 
+                            onChange={handleCredentialUpload}
+                            disabled={uploadingCredential}
+                            className="border-2 border-black p-2 bg-gray-100 font-bold w-full text-xs file:mr-2 file:py-1 file:px-2 file:border-2 file:border-black file:font-bold file:bg-[#fbd000] hover:file:bg-[#e4000f] hover:file:text-white transition-colors"
+                        />
+                         {/* Tampilkan link jika sudah ada (bisa berguna jika ingin copy-paste manual juga) */}
+                         {certForm.credential_url && !uploadingCredential && (
+                           <div className="mt-1 flex items-center gap-2">
+                             <span className="text-[10px] text-green-600 font-bold">✓ File Linked</span>
+                             <input 
+                               readOnly
+                               value={certForm.credential_url}
+                               className="text-[10px] bg-white border border-gray-300 p-1 w-full text-gray-500"
+                             />
+                           </div>
+                         )}
+                    </div>
+                    {/* -------------------------------------------------------- */}
+                  
                   </div>
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={handleSaveCertificate}
-                      disabled={saving}
-                      className="flex-1 bg-[#22b14c] hover:bg-[#1a9e3e] text-white py-2 font-bold border-2 border-black flex items-center justify-center gap-2"
+                      disabled={saving || uploadingCertImg || uploadingCredential}
+                      className="flex-1 bg-[#22b14c] hover:bg-[#1a9e3e] text-white py-2 font-bold border-2 border-black flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       <Save size={16} /> {isEditingCert ? "Update" : "Add"}
                     </button>
@@ -398,6 +495,12 @@ const ProfileManager: React.FC = () => {
                             <p className="text-xs font-bold text-gray-500">
                               {cert.issuer} • {cert.date}
                             </p>
+                            {/* Menampilkan indikator jika ada credential file */}
+                            {cert.credential_url && (
+                                <a href={cert.credential_url} target="_blank" className="text-[10px] text-blue-600 font-bold underline cursor-pointer">
+                                    View Credential File
+                                </a>
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-2 shrink-0">
