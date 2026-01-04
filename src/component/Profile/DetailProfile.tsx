@@ -88,7 +88,7 @@ const DetailProfile = () => {
           </div>
 
           <div className="mt-8 text-white/60 text-xs font-bold uppercase tracking-widest bg-black/20 px-4 py-1 rounded-full backdrop-blur-sm">
-            © 2025 Mario Portfolio Edition
+            © 2025 Portfolio Edition
           </div>
         </div>
       </div>
