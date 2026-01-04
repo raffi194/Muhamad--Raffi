@@ -127,7 +127,7 @@ const Contactme = () => {
                   type="email"
                   name="user_email" // WAJIB ADA
                   required
-                  placeholder="NookPhone / Email"
+                  placeholder="Email"
                   className="w-full bg-[#fbfbf9] border-2 border-[#e6e2d6] text-[#5d5345] text-xs rounded-2xl pl-10 pr-4 py-3 placeholder-[#b5afa3] focus:outline-none focus:border-[#8A7B66] focus:ring-4 focus:ring-[#8A7B66]/20 transition-all font-bold"
                 />
               </div>
