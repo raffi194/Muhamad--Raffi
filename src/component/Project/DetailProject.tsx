@@ -158,20 +158,17 @@ const DetailProject = () => {
                           <img
                             src={cat.thumbnail_url}
                             alt={cat.title}
-                            className="w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-opacity grayscale group-hover:grayscale-0"
+                            className="w-full h-full object-center object-cover opacity-50 group-hover:opacity-80 transition-opacity grayscale group-hover:grayscale-0"
                           />
                         ) : (
                           <div className="w-full h-full bg-zinc-800" />
                         )}
                         <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent"></div>
                       </div>
-                      <div className="absolute bottom-0 left-0 w-full p-6">
-                        <h3 className="text-3xl font-black italic text-white uppercase tracking-tighter skew-x-[-10deg] drop-shadow-md group-hover:text-yellow-400 transition-colors">
+                      <div className="absolute bottom-0 -left-3 w-full p-6">
+                        <h3 className="text-2xl leading-none font-black italic text-white uppercase tracking-tighter skew-x-[-10deg] drop-shadow-md group-hover:text-yellow-400 transition-colors">
                           {cat.title}
                         </h3>
-                        <p className="text-zinc-400 text-sm font-medium mt-1 line-clamp-2">
-                          {cat.description}
-                        </p>
                         <div className="mt-4 inline-block px-3 py-1 bg-red-600 text-white text-[10px] font-bold uppercase italic rounded skew-x-[-10deg]">
                           Start Engine
                         </div>
