@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Home from "./Home/Home";
 import DetailProfile from "./Profile/DetailProfile";
-import DetailEducation from "./Education/DetailEducation";
+import Education from "./Education/Education";
 import Contactme from "./contact/Contactme";
 import DetailSkill from "./Skill/DetailSkill";
 import DetailExperience from "./Experience/Experience";
@@ -380,7 +380,7 @@ const Nintendo = (props: React.SVGProps<SVGSVGElement>) => {
                     viewBox="0 0 2645 1488"
                     preserveAspectRatio="none"
                   >
-                    <DetailEducation width="100%" height="100%" />
+                    <Education width="100%" height="100%" />
                   </svg>
                 )}
 
