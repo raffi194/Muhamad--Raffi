@@ -1,6 +1,6 @@
 import React from "react";
 import DetailEducation from "./DetailEducation";
-import Directions from "../Directions";
+import Directions from "../Directionswhite";
 
 const Education = (props: React.SVGProps<SVGSVGElement>) => {
   return (
